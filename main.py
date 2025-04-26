@@ -12,10 +12,10 @@ SBB_MODULE_ADDR_MIN = 29
 
 
 def main() -> None:
-    print("Starting clock.py!")
+    print("Starting clock!")
 
     clock = sbb_rs485.PanelClockControl(
-        addr_hour=SBB_MODULE_ADDR_HOUR, addr_min=SBB_MODULE_ADDR_MIN
+        port="/dev/ttyS0", addr_hour=SBB_MODULE_ADDR_HOUR, addr_min=SBB_MODULE_ADDR_MIN
     )
     clock.connect()
 
