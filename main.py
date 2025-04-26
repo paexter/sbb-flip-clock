@@ -19,7 +19,7 @@ def main() -> None:
     )
     clock.connect()
 
-    clock.set_zero()
+    # clock.set_zero()
 
     count = 0
     while True:
