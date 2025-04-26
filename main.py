@@ -8,7 +8,7 @@ import time
 from datetime import datetime
 
 SBB_MODULE_ADDR_HOUR = 82
-SBB_MODULE_ADDR_MIN = 29
+SBB_MODULE_ADDR_MIN = 1
 
 
 def main() -> None:
