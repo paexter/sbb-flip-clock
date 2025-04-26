@@ -13,3 +13,7 @@ uv python install 3.12
 1) Run the application
 
 uv run main.py
+
+## Dependencies
+
+https://github.com/adfinis/sbb-fallblatt/tree/master at commit `3097e95061556edef110f86d049867bbf3a20e06`

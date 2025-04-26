@@ -1,7 +1,8 @@
 # /// script
-# requires-python = ">=3.12"
-# dependencies = []
+# requires-python = ">=3.11"
+# dependencies = ["pyserial==3.5"]
 # ///
+from sbb_fallblatt.panel_mock import parse_args, MockPanel
 
 
 def main() -> None:
