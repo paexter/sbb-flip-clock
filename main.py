@@ -19,11 +19,23 @@ def main() -> None:
     )
     clock.connect()
 
+    clock.set_zero()
+
+    count = 0
     while True:
-        clock.set_time_now()
-        ts = datetime.utcnow()
-        sleeptime = 60 - (ts.second + ts.microsecond / 1000000.0)
-        time.sleep(sleeptime)
+        count += 1
+        count %= 60
+
+        print(f"Setting clock to {count:02d} minutes")
+
+        clock.set_minute(count)
+
+        time.sleep(3)
+
+        # clock.set_time_now()
+        # ts = datetime.utcnow()
+        # sleeptime = 60 - (ts.second + ts.microsecond / 1000000.0)
+        # time.sleep(sleeptime)
 
 
 if __name__ == "__main__":
