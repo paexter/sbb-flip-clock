@@ -1,16 +1,28 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["pyserial==3.5"]
+# dependencies = ["pyserial==3.5", "gpiozero==2.0.1"]
 # ///
 
 from sbb_fallblatt import sbb_rs485
 import time
 from datetime import datetime
-import RPi.GPIO as GPIO
+
+from gpiozero import MotionSensor
 
 PIR_SENSOR_PIN = 23  # Pin 16 on the board
-GPIO.setmode(GPIO.BCM)  # Use Broadcom (BCM) pin numbering
-GPIO.setup(PIR_SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
+
+def motion_function():
+    print("Motion Detected")
+
+
+pir = MotionSensor(PIR_SENSOR_PIN)
+pir.when_motion = motion_function
+
+
+# import RPi.GPIO as GPIO
+# GPIO.setmode(GPIO.BCM)  # Use Broadcom (BCM) pin numbering
+# GPIO.setup(PIR_SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 SBB_MODULE_ADDR_HOUR = 12
 SBB_MODULE_ADDR_MIN = 1
@@ -31,11 +43,11 @@ def main() -> None:
     try:
         while True:
             # Read the binary signal. Returns 1 if HIGH, 0 if LOW.
-            signal = GPIO.input(pin)
-            if signal:
-                print("Signal is HIGH")
-            else:
-                print("Signal is LOW")
+            # signal = GPIO.input(pin)
+            # if signal:
+            #     print("Signal is HIGH")
+            # else:
+            #     print("Signal is LOW")
 
             minutes += 1
             minutes %= 60
@@ -56,8 +68,8 @@ def main() -> None:
             # time.sleep(sleeptime)
     except KeyboardInterrupt:
         print("Exiting program")
-    finally:
-        GPIO.cleanup()
+    # finally:
+    #     GPIO.cleanup()
 
 
 if __name__ == "__main__":
