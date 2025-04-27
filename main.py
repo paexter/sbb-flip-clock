@@ -6,6 +6,11 @@
 from sbb_fallblatt import sbb_rs485
 import time
 from datetime import datetime
+import RPi.GPIO as GPIO
+
+PIR_SENSOR_PIN = 23  # Pin 16 on the board
+GPIO.setmode(GPIO.BCM)  # Use Broadcom (BCM) pin numbering
+GPIO.setup(PIR_SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 SBB_MODULE_ADDR_HOUR = 12
 SBB_MODULE_ADDR_MIN = 1
@@ -23,24 +28,36 @@ def main() -> None:
 
     minutes = 0
     hours = 0
-    while True:
-        minutes += 1
-        minutes %= 60
+    try:
+        while True:
+            # Read the binary signal. Returns 1 if HIGH, 0 if LOW.
+            signal = GPIO.input(pin)
+            if signal:
+                print("Signal is HIGH")
+            else:
+                print("Signal is LOW")
 
-        hours += 1
-        hours %= 24
+            minutes += 1
+            minutes %= 60
 
-        print(f"Setting clock to {hours:02d} hours and {minutes:02d} minutes")
+            hours += 1
+            hours %= 24
 
-        clock.set_hour(hours)
-        clock.set_minute(minutes)
+            print(f"Setting clock to {hours:02d} hours and {minutes:02d} minutes")
 
-        time.sleep(3)
+            clock.set_hour(hours)
+            clock.set_minute(minutes)
 
-        # clock.set_time_now()
-        # ts = datetime.utcnow()
-        # sleeptime = 60 - (ts.second + ts.microsecond / 1000000.0)
-        # time.sleep(sleeptime)
+            time.sleep(3)
+
+            # clock.set_time_now()
+            # ts = datetime.utcnow()
+            # sleeptime = 60 - (ts.second + ts.microsecond / 1000000.0)
+            # time.sleep(sleeptime)
+    except KeyboardInterrupt:
+        print("Exiting program")
+    finally:
+        GPIO.cleanup()
 
 
 if __name__ == "__main__":
