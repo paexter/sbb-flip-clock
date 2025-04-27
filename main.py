@@ -7,7 +7,7 @@ from sbb_fallblatt import sbb_rs485
 import time
 from datetime import datetime
 
-SBB_MODULE_ADDR_HOUR = 82
+SBB_MODULE_ADDR_HOUR = 12
 SBB_MODULE_ADDR_MIN = 1
 
 
@@ -21,14 +21,19 @@ def main() -> None:
 
     # clock.set_zero()
 
-    count = 0
+    minutes = 0
+    hours = 0
     while True:
-        count += 1
-        count %= 60
+        minutes += 1
+        minutes %= 60
 
-        print(f"Setting clock to {count:02d} minutes")
+        hours += 1
+        hours %= 24
 
-        clock.set_minute(count)
+        print(f"Setting clock to {hours:02d} hours and {minutes:02d} minutes")
+
+        clock.set_hour(hours)
+        clock.set_minute(minutes)
 
         time.sleep(3)
 
