@@ -16,9 +16,10 @@ def motion_function() -> None:
     print("Motion Detected")
 
 
-# import RPi.GPIO as GPIO
-# GPIO.setmode(GPIO.BCM)  # Use Broadcom (BCM) pin numbering
-# GPIO.setup(PIR_SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BCM)  # Use Broadcom (BCM) pin numbering
+GPIO.setup(PIR_SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 PIR_SENSOR_PIN = 23  # Pin 16 on the board
 SBB_MODULE_ADDR_HOUR = 12
@@ -26,8 +27,8 @@ SBB_MODULE_ADDR_MIN = 1
 
 
 def main() -> None:
-    pir = MotionSensor(PIR_SENSOR_PIN)
-    pir.when_motion = motion_function
+    # pir = MotionSensor(PIR_SENSOR_PIN)
+    # pir.when_motion = motion_function
 
     threading.Thread(target=clock_task, daemon=True).start()
 
@@ -49,11 +50,11 @@ def clock_task() -> None:
     try:
         while True:
             # Read the binary signal. Returns 1 if HIGH, 0 if LOW.
-            # signal = GPIO.input(pin)
-            # if signal:
-            #     print("Signal is HIGH")
-            # else:
-            #     print("Signal is LOW")
+            signal = GPIO.input(PIR_SENSOR_PIN)
+            if signal:
+                print("Signal is HIGH")
+            else:
+                print("Signal is LOW")
 
             minutes += 1
             minutes %= 60
@@ -74,8 +75,8 @@ def clock_task() -> None:
             # time.sleep(sleeptime)
     except KeyboardInterrupt:
         print("Exiting clock task")
-    # finally:
-    #     GPIO.cleanup()
+    finally:
+        GPIO.cleanup()
 
 
 if __name__ == "__main__":
