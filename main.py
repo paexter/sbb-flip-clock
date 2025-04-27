@@ -18,10 +18,11 @@ def motion_function() -> None:
 
 import RPi.GPIO as GPIO
 
+PIR_SENSOR_PIN = 23  # Pin 16 on the board
+
 GPIO.setmode(GPIO.BCM)  # Use Broadcom (BCM) pin numbering
 GPIO.setup(PIR_SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-PIR_SENSOR_PIN = 23  # Pin 16 on the board
 SBB_MODULE_ADDR_HOUR = 12
 SBB_MODULE_ADDR_MIN = 1
 
