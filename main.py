@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["pyserial==3.5", "gpiozero==2.0.1"]
+# dependencies = ["pyserial==3.5", "gpiozero==2.0.1", "RPi.GPIO==0.7.1"]
 # ///
 
 from sbb_fallblatt import sbb_rs485
