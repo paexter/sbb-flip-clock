@@ -12,6 +12,7 @@ dependencies = [
     "pyaudio==0.2.14",
     "numpy==2.2.6",
     # "tflite-runtime==2.14.0",
-    # "openwakeword==0.6.0",
-    "openwakeword==0.5.1",
+    "openwakeword==0.6.0", # Requires the "resources" directory from the 0.5.1 version or manually specified model path
+    # "openwakeword==0.5.1",
+    "rich==14.0.0",
 ]
