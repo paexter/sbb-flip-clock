@@ -1,19 +1,31 @@
 # sbb-flip-clock
 
-## Setup
+## Setup for all
 
-1) Install uv on macOS and Linux
+* Install uv: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+* Install Python: `uv python install 3.11`
+* Run the application: `uv run main.py`
 
-curl -LsSf https://astral.sh/uv/install.sh | sh
+## Setup on Raspberry Pi Zero W
 
-1) Install Python
+* Install and update Raspberry PI OS
+* Install portaudio: `sudo apt-get install portaudio19-dev`
+* Install pyaudio:`sudo apt-get install python3-pyaudio`
+* Install Waveshare RS485 CAN HAT: www.waveshare.com/wiki/RS485_CAN_HAT
+  * `ls -l /dev/serial*` -> No serial device should be listed
+  * `sudo raspi-config`
+  * Select `Interface Options` -> `Serial`, disable shell access, and enable the hardware serial port, restart
+  * `ls -l /dev/serial*` -> A serial device `/dev/ttyS0` should be listed
 
-uv python install 3.12
+## Setup on Mac
 
-1) Run the application
+* Install portaudio with `brew install portaudio`
 
-uv run main.py
+## Setup autostart
+<!-- crontab -e -->
+<!-- @reboot uv run /<path-to-script>/sbb-flip-clock/main.py -->
 
 ## Dependencies
 
-https://github.com/adfinis/sbb-fallblatt/tree/master at commit `3097e95061556edef110f86d049867bbf3a20e06`
+* https://github.com/adfinis/sbb-fallblatt/tree/master at commit `3097e95061556edef110f86d049867bbf3a20e06`
+* Waveshare RS485 CAN HAT: www.waveshare.com/wiki/RS485_CAN_HAT
