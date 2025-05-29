@@ -27,6 +27,7 @@ from openwakeword.model import Model
 model_paths = [
     # "resources/models/alexa_v0.1.onnx",
     "resources/models/custom/hey_clock.onnx",
+    "resources/models/custom/tic_toc.onnx",
 ]
 melspec_model_path = "resources/models/melspectrogram.onnx"
 embedding_model_path = "resources/models/embedding_model.onnx"
