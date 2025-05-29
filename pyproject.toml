@@ -9,4 +9,9 @@ dependencies = [
     "gpiozero==1.5.1",
     # "pvporcupine==3.0.5",
     # "pvrecorder==1.2.7",
+    "pyaudio==0.2.14",
+    "numpy==2.2.6",
+    # "tflite-runtime==2.14.0",
+    # "openwakeword==0.6.0",
+    "openwakeword==0.5.1",
 ]

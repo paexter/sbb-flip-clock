@@ -1,8 +1,3 @@
-# /// script
-# requires-python = ">=3.11"
-# dependencies = ["pyaudio==0.2.14", "numpy==2.2.6", "openwakeword==0.6.0"]
-# ///
-
 # Copyright 2022 David Scripka. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
