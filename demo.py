@@ -22,9 +22,9 @@ import numpy as np
 from openwakeword.model import Model
 
 # The path of a specific model to load
-# model_path = ""
-# model_path = "resources/models/embedding_model.tflite"
-model_path = "resources/models/alexa_v0.1.onnx"
+# model_paths = []
+# model_paths = ["resources/models/embedding_model.tflite"]
+model_paths = ["resources/models/alexa_v0.1.onnx"]
 melspec_model_path = "resources/models/melspectrogram.onnx"
 embedding_model_path = "resources/models/embedding_model.onnx"
 
@@ -45,19 +45,15 @@ mic_stream = audio.open(
     format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK
 )
 
-# Load pre-trained openwakeword models
-if model_path != "":
-    # owwModel = Model(
-    #     wakeword_models=[model_path], inference_framework=inference_framework
-    #     inference_framework=inference_framework,
-    # )
+if model_paths is not None and len(model_paths) > 0:
     owwModel = Model(
-        wakeword_models=[model_path],
+        wakeword_models=model_paths,
         melspec_model_path=melspec_model_path,
         embedding_model_path=embedding_model_path,
         inference_framework=inference_framework,
     )
 else:
+    # Load pre-trained openwakeword models (broken in 0.6.0 and works in 0.5.1 since it ships with the models)
     owwModel = Model(inference_framework=inference_framework)
 
 n_models = len(owwModel.models.keys())
