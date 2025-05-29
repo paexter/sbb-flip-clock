@@ -1,0 +1,12 @@
+[project]
+name = "sbb-flip-clock"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pyserial==3.5",
+    "gpiozero==1.5.1",
+    # "pvporcupine==3.0.5",
+    # "pvrecorder==1.2.7",
+]
