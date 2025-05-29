@@ -24,7 +24,10 @@ from openwakeword.model import Model
 # The path of a specific model to load
 # model_paths = []
 # model_paths = ["resources/models/embedding_model.tflite"]
-model_paths = ["resources/models/alexa_v0.1.onnx"]
+model_paths = [
+    # "resources/models/alexa_v0.1.onnx",
+    "resources/models/custom/hey_clock.onnx",
+]
 melspec_model_path = "resources/models/melspectrogram.onnx"
 embedding_model_path = "resources/models/embedding_model.onnx"
 
@@ -86,7 +89,7 @@ if __name__ == "__main__":
             scores = list(owwModel.prediction_buffer[mdl])
             curr_score = format(scores[-1], ".20f").replace("-", "")
 
-            output_string_header += f"""{mdl}{" "*(n_spaces - len(mdl))}   | {curr_score[0:5]} | {"--"+" "*20 if scores[-1] <= 0.5 else "Wakeword Detected!"}
+            output_string_header += f"""{mdl}{" "*(n_spaces - len(mdl))}   | {curr_score[0:5]} | {"--"+" "*20 if scores[-1] <= 0.1 else "Wakeword Detected!"}
             """
 
         # Print results table

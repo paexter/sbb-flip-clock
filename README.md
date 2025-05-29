@@ -29,3 +29,9 @@
 
 * https://github.com/adfinis/sbb-fallblatt/tree/master at commit `3097e95061556edef110f86d049867bbf3a20e06`
 * Waveshare RS485 CAN HAT: www.waveshare.com/wiki/RS485_CAN_HAT
+* Pretrained wake word models: https://github.com/fwartner/home-assistant-wakewords-collection/tree/main/en
+
+## Other related projects
+
+* https://github.com/kahrendt/microWakeWord?tab=readme-ov-file
+* https://github.com/esphome/micro-wake-word-models/tree/main/models
