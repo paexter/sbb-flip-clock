@@ -4,6 +4,10 @@ from datetime import datetime
 import threading
 from signal import pause
 
+import rich.traceback
+
+rich.traceback.install(show_locals=True)
+
 SBB_MODULE_ADDR_HOUR = 12
 SBB_MODULE_ADDR_MIN = 1
 
