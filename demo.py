@@ -25,7 +25,7 @@ from openwakeword.model import Model
 # model_paths = []
 # model_paths = ["resources/models/embedding_model.tflite"]
 model_paths = [
-    # "resources/models/alexa_v0.1.onnx",
+    "resources/models/alexa_v0.1.onnx",
     "resources/models/custom/hey_clock.onnx",
     "resources/models/custom/tic_toc.onnx",
 ]
@@ -55,6 +55,7 @@ if model_paths is not None and len(model_paths) > 0:
         melspec_model_path=melspec_model_path,
         embedding_model_path=embedding_model_path,
         inference_framework=inference_framework,
+        # enable_speex_noise_suppression=True, # Linux only
     )
 else:
     # Load pre-trained openwakeword models (broken in 0.6.0 and works in 0.5.1 since it ships with the models)
