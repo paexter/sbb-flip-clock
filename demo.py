@@ -7,16 +7,14 @@ import pyaudio
 import numpy as np
 from openwakeword.model import Model
 
-# WAKE_WORD_MODEL_PATHS = ["resources/models/embedding_model.tflite"]
 WAKE_WORD_MODEL_PATHS = [
-    "resources/models/alexa_v0.1.onnx",
-    "resources/models/custom/hey_clock.onnx",
+    # "resources/models/alexa_v0.1.onnx",
+    # "resources/models/custom/hey_clock.onnx",
     "resources/models/custom/tic_toc.onnx",
 ]
-melspec_model_path = "resources/models/melspectrogram.onnx"
-embedding_model_path = "resources/models/embedding_model.onnx"
+MELSPEC_MODEL_PATH = "resources/models/melspectrogram.onnx"
+EMBEDDING_MODEL_PATH = "resources/models/embedding_model.onnx"
 
-# The inference framework to use (either 'onnx' or 'tflite')
 # INFERENCE_FRAMEWORK = "tflite"
 INFERENCE_FRAMEWORK = "onnx"
 
@@ -46,15 +44,15 @@ mic_stream = audio.open(
     input_device_index=INPUT_DEVICE_INDEX,
 )
 
-owwModel = Model(
+model = Model(
     wakeword_models=WAKE_WORD_MODEL_PATHS,
-    melspec_model_path=melspec_model_path,
-    embedding_model_path=embedding_model_path,
+    melspec_model_path=MELSPEC_MODEL_PATH,
+    embedding_model_path=EMBEDDING_MODEL_PATH,
     inference_framework=INFERENCE_FRAMEWORK,
     enable_speex_noise_suppression=ENABLE_SPEEX_NOISE_SUPPRESSION,
 )
 
-model_count = len(owwModel.models.keys())
+model_count = len(model.models.keys())
 
 # Run capture loop continuosly, checking for wakewords
 if __name__ == "__main__":
@@ -72,21 +70,21 @@ if __name__ == "__main__":
         )
 
         # Feed to openWakeWord model
-        prediction = owwModel.predict(audio)
+        prediction = model.predict(audio)
 
         # Column titles
-        n_spaces = 16
+        spaces_count = 16
         output_string_header = """
             Model Name         | Score | Wakeword Status
             --------------------------------------
             """
 
-        for mdl in owwModel.prediction_buffer.keys():
+        for m in model.prediction_buffer.keys():
             # Add scores in formatted table
-            scores = list(owwModel.prediction_buffer[mdl])
+            scores = list(model.prediction_buffer[m])
             curr_score = format(scores[-1], ".20f").replace("-", "")
 
-            output_string_header += f"""{mdl}{" "*(n_spaces - len(mdl))}   | {curr_score[0:5]} | {"--"+" "*20 if scores[-1] <= 0.1 else "Wakeword Detected!"}
+            output_string_header += f"""{m}{" "*(spaces_count - len(m))}   | {curr_score[0:5]} | {"--"+" "*20 if scores[-1] <= 0.1 else "Wakeword Detected!"}
             """
 
         # Print results table
