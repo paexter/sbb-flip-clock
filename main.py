@@ -59,3 +59,11 @@ def clock_task() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+# Plan
+# - The shutdown button callback shuts down the system
+# - State button sets a shared state variable
+# - Have a shared clock object that sets the clock
+# - Have a wake word task that checks for the wake word button to be set and waits for a wake word, and triggers the clock update
+# - Have a clock task that checks if the wake word mode is set and otherwise constantly triggers updates.
