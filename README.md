@@ -24,6 +24,7 @@
 ## Run the application
 
 * Run the application: `uv run main.py`
+* Run the linter: `clear && uvx ruff check main.py`
 
 ## Run the application at startup
 <!-- crontab -e -->

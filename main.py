@@ -1,10 +1,10 @@
-from sbb_fallblatt import sbb_rs485
 import time
-from datetime import datetime
 import threading
-from signal import pause
-
 import rich.traceback
+from signal import pause
+from sbb_fallblatt import sbb_rs485
+
+# from datetime import datetime
 
 rich.traceback.install(show_locals=True)
 

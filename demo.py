@@ -1,12 +1,12 @@
 # Imports
-import rich.traceback
-
-rich.traceback.install(show_locals=True)
-
 import pyaudio
 import numpy as np
+import rich.traceback
+
 from openwakeword.model import Model
 from typing import List
+
+rich.traceback.install(show_locals=True)
 
 WAKE_WORD_MODEL_PATHS: List[str] = [
     # "resources/models/alexa_v0.1.onnx",
