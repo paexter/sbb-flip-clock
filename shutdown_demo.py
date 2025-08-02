@@ -9,7 +9,7 @@ from signal import pause
 button = Button(17)
 
 
-def shutdown_handler():
+def shutdown_handler() -> None:
     print("Shutdown initiated by button press!")
     # You can allow a specific shutdown command to be executed without a password. For example, add the following line to your sudoers file (using visudo):
 

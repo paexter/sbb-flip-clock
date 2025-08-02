@@ -8,7 +8,7 @@ from signal import pause
 button = Button(17)
 
 
-def on_button_pressed():
+def on_button_pressed() -> None:
     print("Button pressed!")
 
 

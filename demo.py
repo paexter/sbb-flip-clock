@@ -6,13 +6,14 @@ rich.traceback.install(show_locals=True)
 import pyaudio
 import numpy as np
 from openwakeword.model import Model
+from typing import List
 
-WAKE_WORD_MODEL_PATHS = [
+WAKE_WORD_MODEL_PATHS: List[str] = [
     # "resources/models/alexa_v0.1.onnx",
     # "resources/models/custom/hey_clock.onnx",
     "resources/models/custom/tic_toc.onnx",
 ]
-MELSPEC_MODEL_PATH = "resources/models/melspectrogram.onnx"
+MELSPEC_MODEL_PATH: str = "resources/models/melspectrogram.onnx"
 EMBEDDING_MODEL_PATH = "resources/models/embedding_model.onnx"
 
 # INFERENCE_FRAMEWORK = "tflite"
@@ -76,7 +77,7 @@ if __name__ == "__main__":
         spaces_count = 16
         output_string_header = """
             Model Name         | Score | Wakeword Status
-            --------------------------------------
+            --------------------------------------------
             """
 
         for m in model.prediction_buffer.keys():
