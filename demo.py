@@ -55,7 +55,7 @@ model = Model(
 
 model_count = len(model.models.keys())
 
-# Run capture loop continuosly, checking for wakewords
+
 if __name__ == "__main__":
     # Generate output string header
     print("\n\n")
