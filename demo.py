@@ -1,93 +1,104 @@
-# Imports
 import pyaudio
 import numpy as np
 import rich.traceback
 
 from openwakeword.model import Model
-from typing import List
 
 rich.traceback.install(show_locals=True)
 
-WAKE_WORD_MODEL_PATHS: List[str] = [
-    # "resources/models/alexa_v0.1.onnx",
-    # "resources/models/custom/hey_clock.onnx",
-    "resources/models/custom/tic_toc.onnx",
-]
-MELSPEC_MODEL_PATH: str = "resources/models/melspectrogram.onnx"
-EMBEDDING_MODEL_PATH = "resources/models/embedding_model.onnx"
 
-# INFERENCE_FRAMEWORK = "tflite"
-INFERENCE_FRAMEWORK = "onnx"
+class WakeWordDetector:
+    def __init__(self) -> None:
+        self._WAKE_WORD_MODEL_PATHS: list[str] = [
+            # "resources/models/alexa_v0.1.onnx",
+            # "resources/models/custom/hey_clock.onnx",
+            "resources/models/custom/tic_toc.onnx",
+        ]
+        self._MELSPEC_MODEL_PATH: str = "resources/models/melspectrogram.onnx"
+        self._EMBEDDING_MODEL_PATH = "resources/models/embedding_model.onnx"
 
-FORMAT = pyaudio.paInt16
-CHANNELS = 1
-RATE = 16000
-CHUNK = 1280  # How much audio (in number of samples) to predict on at once
-INPUT_DEVICE_INDEX = None  # Set to None to use the default microphone
+        # self._INFERENCE_FRAMEWORK = "tflite"
+        self._INFERENCE_FRAMEWORK = "onnx"
 
-ENABLE_SPEEX_NOISE_SUPPRESSION = (
-    False  # Linux only, requires pyaudio with speex support
-)
+        self._SAMPLE_FORMAT = pyaudio.paInt16
+        self._CHANNEL_COUNT = 1
+        self._SAMPLE_RATE = 16000
+        self._SAMPLE_COUNT_PER_CHUNK = (
+            1280  # How much audio (in number of samples) to predict on at once
+        )
+        self._INPUT_DEVICE_INDEX = None  # Set to None to use the default microphone
 
-# Get microphone stream
-audio = pyaudio.PyAudio()
+        self._ENABLE_SPEEX_NOISE_SUPPRESSION = (
+            False  # Linux only, requires pyaudio with speex support
+        )
 
-for i in range(audio.get_device_count()):
-    device_info = audio.get_device_info_by_index(i)
-    print(f"Device {i}: {device_info['name']}")
+        # Get microphone stream
+        self._audio = pyaudio.PyAudio()
 
-mic_stream = audio.open(
-    format=FORMAT,
-    channels=CHANNELS,
-    rate=RATE,
-    input=True,
-    frames_per_buffer=CHUNK,
-    input_device_index=INPUT_DEVICE_INDEX,
-)
+        for i in range(self._audio.get_device_count()):
+            device_info = self._audio.get_device_info_by_index(i)
+            print(f"Device {i}: {device_info['name']}")
 
-model = Model(
-    wakeword_models=WAKE_WORD_MODEL_PATHS,
-    melspec_model_path=MELSPEC_MODEL_PATH,
-    embedding_model_path=EMBEDDING_MODEL_PATH,
-    inference_framework=INFERENCE_FRAMEWORK,
-    enable_speex_noise_suppression=ENABLE_SPEEX_NOISE_SUPPRESSION,
-)
+        self._mic_stream = self._audio.open(
+            format=self._SAMPLE_FORMAT,
+            channels=self._CHANNEL_COUNT,
+            rate=self._SAMPLE_RATE,
+            input=True,
+            frames_per_buffer=self._SAMPLE_COUNT_PER_CHUNK,
+            input_device_index=self._INPUT_DEVICE_INDEX,
+        )
 
-model_count = len(model.models.keys())
+        self._model = Model(
+            wakeword_models=self._WAKE_WORD_MODEL_PATHS,
+            melspec_model_path=self._MELSPEC_MODEL_PATH,
+            embedding_model_path=self._EMBEDDING_MODEL_PATH,
+            inference_framework=self._INFERENCE_FRAMEWORK,
+            enable_speex_noise_suppression=self._ENABLE_SPEEX_NOISE_SUPPRESSION,
+        )
+
+        self._model_count: int = len(self._model.models.keys())
+
+    def listen_for_wake_word(self) -> None:
+        # Generate output string header
+        print("\n\n")
+        print("#" * 100)
+        print("Listening for wakewords...")
+        print("#" * 100)
+        print("\n" * (self._model_count * 3))
+
+        while True:
+            # Get audio
+            audio = np.frombuffer(
+                self._mic_stream.read(
+                    self._SAMPLE_COUNT_PER_CHUNK, exception_on_overflow=False
+                ),
+                dtype=np.int16,
+            )
+
+            # Feed to openWakeWord model
+            prediction = self._model.predict(audio)
+
+            # Column titles
+            spaces_count = 16
+            output_string_header = """
+                Model Name         | Score | Wake word Status
+                ---------------------------------------------
+                """
+
+            for m in self._model.prediction_buffer.keys():
+                # Add scores in formatted table
+                scores: list = list(self._model.prediction_buffer[m])
+                current_score: str = format(scores[-1], ".20f").replace("-", "")
+
+                output_string_header += f"""{m}{" "*(spaces_count - len(m))}   | {current_score[0:5]} | {"--"+" "*20 if scores[-1] <= 0.1 else "Wakeword Detected!"}
+                """
+
+            # Print results table
+            print("\033[F" * (4 * self._model_count + 1))
+            print(output_string_header, "                             ", end="\r")
 
 
 if __name__ == "__main__":
-    # Generate output string header
-    print("\n\n")
-    print("#" * 100)
-    print("Listening for wakewords...")
-    print("#" * 100)
-    print("\n" * (model_count * 3))
+    wake_word_detector = WakeWordDetector()
 
-    while True:
-        # Get audio
-        audio = np.frombuffer(
-            mic_stream.read(CHUNK, exception_on_overflow=False), dtype=np.int16
-        )
-
-        # Feed to openWakeWord model
-        prediction = model.predict(audio)
-
-        # Column titles
-        spaces_count = 16
-        output_string_header = """
-            Model Name         | Score | Wakeword Status
-            --------------------------------------------
-            """
-
-        for m in model.prediction_buffer.keys():
-            # Add scores in formatted table
-            scores = list(model.prediction_buffer[m])
-            curr_score = format(scores[-1], ".20f").replace("-", "")
-
-            output_string_header += f"""{m}{" "*(spaces_count - len(m))}   | {curr_score[0:5]} | {"--"+" "*20 if scores[-1] <= 0.1 else "Wakeword Detected!"}
-            """
-
-        # Print results table
-        print("\033[F" * (4 * model_count + 1))
-        print(output_string_header, "                             ", end="\r")
+    wake_word_detector.listen_for_wake_word()
