@@ -5,7 +5,7 @@ import os
 from gpiozero import Button
 from signal import pause
 
-# Adjust the pin number based on your wiring.
+# TODO: Adjust the pin number based on your wiring.
 button = Button(17)
 
 

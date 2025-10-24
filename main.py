@@ -3,6 +3,8 @@ import threading
 import rich.traceback
 from signal import pause
 from sbb_fallblatt import sbb_rs485
+import os
+from gpiozero import Button
 
 # from datetime import datetime
 
@@ -14,6 +16,32 @@ SBB_MODULE_ADDR_MIN = 1
 
 def main() -> None:
     threading.Thread(target=clock_task, daemon=True).start()
+    threading.Thread(target=shutdown_button_task, daemon=True).start()
+
+    pause()
+
+
+def shutdown_button_task() -> None:
+    print("[Shutdown Button Task] Starting shutdown button task!")
+
+    # TODO: Adjust the pin number based on your wiring.
+    button = Button(17)
+
+    def shutdown_handler() -> None:
+        print("[Shutdown Button Task] Shutdown initiated by button press!")
+        # You can allow a specific shutdown command to be executed without a password. For example, add the following line to your sudoers file (using visudo):
+
+        # your_username ALL=(ALL) NOPASSWD: /sbin/shutdown
+
+        # Replace your_username with your actual username. Then you can call shutdown without needing sudo credentials in your script.
+        os.system("sudo shutdown -h now")
+
+    # Attach the callback to the button press event.
+    button.when_pressed = shutdown_handler
+
+    print(
+        "[Shutdown Button Task] Waiting for button press. Press the showdown button to shutdown the system."
+    )
 
     pause()
 
