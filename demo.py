@@ -67,12 +67,9 @@ class WakeWordDetector:
         self._wake_word_callback = callback
 
     def listen_for_wake_word(self) -> None:
-        # Generate output string header
-        print("\n\n")
         print("#" * 100)
         print("Listening for wake words...")
         print("#" * 100)
-        print("\n" * (self._model_count * 3))
 
         while True:
             # Get audio
@@ -83,35 +80,24 @@ class WakeWordDetector:
                 dtype=np.int16,
             )
 
-            # Feed to openWakeWord model
+            # Feed to model
             prediction = self._model.predict(audio)
-
-            # Column titles
-            spaces_count = 16
-            output_string_header = """
-                Model Name         | Score | Wake Word Status
-                ---------------------------------------------
-                """
 
             wake_word_detected = False
             for m in self._model.prediction_buffer.keys():
-                # Add scores in formatted table
-                scores: list = list(self._model.prediction_buffer[m])
-                current_score: str = format(scores[-1], ".20f").replace("-", "")
+                score: float = list(self._model.prediction_buffer[m])[-1]
 
-                detected = scores[-1] > self._detection_threshold
-                if detected:
+                if score > self._detection_threshold:
                     wake_word_detected = True
+                    formatted_score: str = format(score, ".20f").replace("-", "")
+                    formatted_model: str = f"{m}{' '*(16 - len(m))}"
 
-                output_string_header += f"""{m}{" "*(spaces_count - len(m))}   | {current_score[0:5]} | {"--"+" "*20 if not detected else "Wake Word Detected!"}
-                """
+                    print(f"{formatted_model} | {formatted_score[0:5]}")
 
-            if wake_word_detected and self._wake_word_callback:
-                self._wake_word_callback()
-
-            # Print results table
-            print("\033[F" * (4 * self._model_count + 1))
-            print(output_string_header, "                             ", end="\r")
+            if wake_word_detected:
+                print("-" * 100)
+                if self._wake_word_callback:
+                    self._wake_word_callback()
 
 
 if __name__ == "__main__":
