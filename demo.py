@@ -9,7 +9,7 @@ rich.traceback.install(show_locals=True)
 
 class WakeWordDetector:
     def __init__(self) -> None:
-        self._detection_threshold = 0.1
+        self._detection_threshold: float = 0.1
 
         self._WAKE_WORD_MODEL_PATHS: list[str] = [
             # "resources/models/alexa_v0.1.onnx",
@@ -17,20 +17,20 @@ class WakeWordDetector:
             "resources/models/custom/tic_toc.onnx",
         ]
         self._MELSPEC_MODEL_PATH: str = "resources/models/melspectrogram.onnx"
-        self._EMBEDDING_MODEL_PATH = "resources/models/embedding_model.onnx"
+        self._EMBEDDING_MODEL_PATH: str = "resources/models/embedding_model.onnx"
 
         # self._INFERENCE_FRAMEWORK = "tflite"
         self._INFERENCE_FRAMEWORK = "onnx"
 
-        self._SAMPLE_FORMAT = pyaudio.paInt16
-        self._CHANNEL_COUNT = 1
-        self._SAMPLE_RATE = 16000
-        self._SAMPLE_COUNT_PER_CHUNK = (
-            1280  # How much audio (in number of samples) to predict on at once
+        self._SAMPLE_FORMAT: int = pyaudio.paInt16
+        self._CHANNEL_COUNT: int = 1
+        self._SAMPLE_RATE: int = 16000
+        self._SAMPLE_COUNT_PER_CHUNK: int = 1280
+        self._INPUT_DEVICE_INDEX: int | None = (
+            None  # Set to None to use the default microphone
         )
-        self._INPUT_DEVICE_INDEX = None  # Set to None to use the default microphone
 
-        self._ENABLE_SPEEX_NOISE_SUPPRESSION = (
+        self._ENABLE_SPEEX_NOISE_SUPPRESSION: bool = (
             False  # Linux only, requires pyaudio with speex support
         )
 
@@ -41,7 +41,7 @@ class WakeWordDetector:
             device_info = self._audio.get_device_info_by_index(i)
             print(f"Device {i}: {device_info['name']}")
 
-        self._mic_stream = self._audio.open(
+        self._mic_stream: pyaudio._Stream = self._audio.open(
             format=self._SAMPLE_FORMAT,
             channels=self._CHANNEL_COUNT,
             rate=self._SAMPLE_RATE,
@@ -60,7 +60,7 @@ class WakeWordDetector:
 
         self._model_count: int = len(self._model.models.keys())
 
-        self._wake_word_callback = None
+        self._wake_word_callback: bool = None
 
     def register_wake_word_callback(self, callback):
         """Register a callback to be called when a wake word is detected."""
