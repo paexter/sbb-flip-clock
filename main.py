@@ -17,6 +17,8 @@ SBB_MODULE_ADDR_MIN = 1
 wake_word_button = Button(17)
 shutdown_button = Button(17)
 
+wake_word_triggered: bool = False
+
 
 def shutdown_button_handler() -> None:
     print("[Shutdown Button Task] Shutdown initiated by shutdown button press!")
@@ -34,7 +36,15 @@ shutdown_button.when_pressed = shutdown_button_handler
 
 def main() -> None:
     threading.Thread(target=clock_task, daemon=True).start()
+    threading.Thread(target=wake_word_task, daemon=True).start()
 
+    pause()
+
+
+def wake_word_task() -> None:
+    print("[Wake Word Task] Starting!")
+    # TODO: Implement
+    # wake_word_triggered = True
     pause()
 
 
@@ -53,8 +63,13 @@ def clock_task() -> None:
     try:
         while True:
 
-            if wake_word_button.is_pressed and shutdown_button.is_pressed:
+            if shutdown_button.is_pressed:
                 time.sleep(1)
+                continue
+
+            if wake_word_button.is_pressed and not wake_word_triggered:
+                time.sleep(1)
+                continue
 
             minutes += 1
             minutes %= 60
@@ -62,7 +77,9 @@ def clock_task() -> None:
             hours += 1
             hours %= 24
 
-            print(f"Setting clock to {hours:02d} hours and {minutes:02d} minutes")
+            print(
+                f"[Clock Task] Setting clock to {hours:02d} hours and {minutes:02d} minutes."
+            )
 
             clock.set_hour(hours)
             clock.set_minute(minutes)
@@ -73,11 +90,10 @@ def clock_task() -> None:
             # ts = datetime.utcnow()
             # sleeptime = 60 - (ts.second + ts.microsecond / 1000000.0)
             # time.sleep(sleeptime)
+
+            wake_word_triggered = False
     except KeyboardInterrupt:
-        print("Exiting clock task")
-    finally:
-        pass
-        # GPIO.cleanup()
+        print("[Clock Task] Exiting!")
 
 
 if __name__ == "__main__":
