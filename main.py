@@ -43,8 +43,16 @@ def main() -> None:
 
 def wake_word_task() -> None:
     print("[Wake Word Task] Starting!")
+
     # TODO: Implement
-    # wake_word_triggered = True
+    # def wake_word_handler() -> None:
+    #     print("Wake word callback triggered!")
+    #     wake_word_triggered = True
+
+    # wake_word_detector = WakeWordDetector()
+    # wake_word_detector.register_wake_word_callback(wake_word_handler)
+    # wake_word_detector.listen_for_wake_word()
+
     pause()
 
 

@@ -7,10 +7,12 @@ from openwakeword.model import Model
 rich.traceback.install(show_locals=True)
 
 
+# TODO: Move to separate wake_word_detector.py file
 class WakeWordDetector:
     def __init__(self) -> None:
         self._detection_threshold: float = 0.1
 
+        # TODO: Make all variables lowercase
         self._WAKE_WORD_MODEL_PATHS: list[str] = [
             # "resources/models/alexa_v0.1.onnx",
             # "resources/models/custom/hey_clock.onnx",
