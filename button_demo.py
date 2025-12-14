@@ -5,8 +5,8 @@ from gpiozero import Button
 from signal import pause
 
 # Adjust the pin number based on your wiring.
-button_1 = Button(6, pull_up=True)
-button_2 = Button(26, pull_up=True)
+button_1 = Button(6, bounce_time=0.1)
+button_2 = Button(26, bounce_time=0.1)
 
 
 def on_button_1_pressed() -> None:
