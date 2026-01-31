@@ -1,6 +1,7 @@
 import os
 import threading
 import time
+from datetime import datetime
 from signal import pause
 
 import rich.traceback
@@ -8,15 +9,14 @@ from gpiozero import Button
 
 from sbb_fallblatt import sbb_rs485
 
-# from datetime import datetime
-
 rich.traceback.install(show_locals=True)
 
 
 class Clock:
-    def __init__(self, addr_hour: int, addr_min: int) -> None:
-        self._addr_hour = addr_hour
-        self._addr_min = addr_min
+    def __init__(self, addr_hour: int, addr_min: int, enable_demo_mode: bool) -> None:
+        self._addr_hour: int = addr_hour
+        self._addr_min: int = addr_min
+        self._enable_demo_mode: bool = False
 
         self._wake_word_button = Button(6, bounce_time=0.2)
         self._shutdown_button = Button(26, bounce_time=0.2)
@@ -24,7 +24,7 @@ class Clock:
         self._wake_word_triggered: bool = False
         self._panel_clock = None
 
-        # Attach the callback to the button press event.
+        # Attach the callbacks to the button press events
         self._wake_word_button.when_pressed = self._wake_word_button_handler
         self._shutdown_button.when_pressed = self._shutdown_button_handler
 
@@ -49,8 +49,7 @@ class Clock:
 
         print("[Shutdown Button Handler] Button still pressed, shutting down!")
         if self._panel_clock is not None:
-            self._panel_clock.set_hour(0)
-            self._panel_clock.set_minute(0)
+            self._panel_clock.set_zero()
 
         # You can allow a specific shutdown command to be executed without a password.
         # For example, add the following line to your sudoers file (using visudo):
@@ -68,6 +67,7 @@ class Clock:
         # def wake_word_handler() -> None:
         #     print("Wake word callback triggered!")
         #     wake_word_triggered = True
+        #     TODO: Set the time
 
         # wake_word_detector = WakeWordDetector()
         # wake_word_detector.register_wake_word_callback(wake_word_handler)
@@ -83,8 +83,6 @@ class Clock:
         )
         self._panel_clock.connect()
 
-        # clock.set_zero()
-
         minutes = 0
         hours = 0
         try:
@@ -97,23 +95,24 @@ class Clock:
                     time.sleep(1)
                     continue
 
-                minutes += 1
-                minutes %= 60
+                if self._enable_demo_mode:
+                    minutes += 1
+                    minutes %= 60
 
-                hours += 1
-                hours %= 24
+                    hours += 1
+                    hours %= 24
 
-                print(f"[Clock Task] Setting time to {hours:02d}:{minutes:02d}.")
+                    print(f"[Clock Task] Setting time to {hours:02d}:{minutes:02d}.")
 
-                self._panel_clock.set_hour(hours)
-                self._panel_clock.set_minute(minutes)
+                    self._panel_clock.set_hour(hours)
+                    self._panel_clock.set_minute(minutes)
 
-                time.sleep(3)
-
-                # clock.set_time_now()
-                # ts = datetime.utcnow()
-                # sleeptime = 60 - (ts.second + ts.microsecond / 1000000.0)
-                # time.sleep(sleeptime)
+                    time.sleep(3)
+                else:
+                    self._panel_clock.set_time_now()
+                    ts: datetime = datetime.utcnow()
+                    sleeptime: float = 60 - (ts.second + ts.microsecond / 1000000.0)
+                    time.sleep(sleeptime)
 
                 self._wake_word_triggered = False
         except KeyboardInterrupt:
