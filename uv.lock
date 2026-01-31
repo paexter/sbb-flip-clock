@@ -436,6 +436,7 @@ dependencies = [
     { name = "pyserial" },
     { name = "resampy" },
     { name = "rich" },
+    { name = "speexdsp-ns", marker = "sys_platform == 'linux'" },
 ]
 
 [package.metadata]
@@ -447,6 +448,7 @@ requires-dist = [
     { name = "pyserial", specifier = "==3.5" },
     { name = "resampy", specifier = ">=0.4.3" },
     { name = "rich", specifier = "==14.0.0" },
+    { name = "speexdsp-ns", marker = "sys_platform == 'linux'", specifier = "==0.1.2" },
 ]
 
 [[package]]
@@ -536,6 +538,17 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/18/5d/3bf57dcd21979b887f014ea83c24ae194cfcd12b9e0fda66b957c69d1fca/setuptools-80.9.0.tar.gz", hash = "sha256:f36b47402ecde768dbfafc46e8e4207b4360c654f1f3bb84475f0a28628fb19c", size = 1319958, upload_time = "2025-05-27T00:56:51.443Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a3/dc/17031897dae0efacfea57dfd3a82fdd2a2aeb58e0ff71b77b87e44edc772/setuptools-80.9.0-py3-none-any.whl", hash = "sha256:062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922", size = 1201486, upload_time = "2025-05-27T00:56:49.664Z" },
+]
+
+[[package]]
+name = "speexdsp-ns"
+version = "0.1.2"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6e/16/ab9442ab375407d1a6130fd1a55686eef24cbeec6223f7b5bd358b68c776/speexdsp_ns-0.1.2-cp311-cp311-manylinux_2_28_aarch64.whl", hash = "sha256:a8f47dd7996b7fceee36f983118500a42963541c0701ab16543ad35dc7a351db", size = 156792, upload_time = "2023-08-07T20:34:47.795Z" },
+    { url = "https://files.pythonhosted.org/packages/39/cb/b5c16a514950908d2d9201580946973a84d77ea887eb48fdabdc97f13d6d/speexdsp_ns-0.1.2-cp311-cp311-manylinux_2_28_x86_64.whl", hash = "sha256:986ed698264eab2e9c775382739fd7a6b6800b589594b037062f53928b87ea3f", size = 159862, upload_time = "2023-08-07T20:35:01.411Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/7e/1b7f7f021736c671b18d69f6f561d5556fd3a5369c94d9c458b4a8fb2e13/speexdsp_ns-0.1.2-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:09cf0a8f9530fca1f203f53808b074d247b9083df323199bd9d150f70af08338", size = 158227, upload_time = "2023-08-07T20:34:52.144Z" },
+    { url = "https://files.pythonhosted.org/packages/7b/14/d9fd843472f82853643c4ae09835c76bfb19ce7e712586cfc1318030503f/speexdsp_ns-0.1.2-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:c2c73c2f132212fecfff52a689594f925453ff521fec336411149256aedcd819", size = 161569, upload_time = "2023-08-07T20:34:59.781Z" },
 ]
 
 [[package]]
