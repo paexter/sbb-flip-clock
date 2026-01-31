@@ -35,6 +35,9 @@ def shutdown_button_handler() -> None:
         clock.set_minute(30)
 
     for i in range(5, 0, -1):
+        if not shutdown_button.is_pressed:
+            print("[Shutdown Button Handler] Button released, shutdown cancelled.")
+            return
         print(f"[Shutdown Button Handler] Shutting down in {i} seconds...")
         time.sleep(1)
 
