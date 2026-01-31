@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 
-import pyaudio
 import numpy as np
-
+import pyaudio
 from openwakeword.model import Model
 
 
@@ -111,7 +110,7 @@ class WakeWordDetector:
             )
 
             # Feed to model
-            prediction = self._model.predict(audio)
+            _ = self._model.predict(audio)
 
             wake_word_detected = False
             for m in self._model.prediction_buffer.keys():
@@ -120,7 +119,7 @@ class WakeWordDetector:
                 if score > self._detection_threshold:
                     wake_word_detected = True
                     formatted_score: str = format(score, ".20f").replace("-", "")
-                    formatted_model: str = f"{m}{' '*(16 - len(m))}"
+                    formatted_model: str = f"{m}{' ' * (16 - len(m))}"
 
                     print(f"{formatted_model} | {formatted_score[0:5]}")
 

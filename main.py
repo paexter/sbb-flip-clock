@@ -1,10 +1,12 @@
-import time
-import threading
-import rich.traceback
-from signal import pause
-from sbb_fallblatt import sbb_rs485
 import os
+import threading
+import time
+from signal import pause
+
+import rich.traceback
 from gpiozero import Button
+
+from sbb_fallblatt import sbb_rs485
 
 # from datetime import datetime
 
@@ -58,6 +60,7 @@ def wake_word_task() -> None:
 
 
 def clock_task() -> None:
+    global wake_word_triggered
     print("[Clock Task] Starting!")
 
     clock = sbb_rs485.PanelClockControl(
@@ -71,7 +74,6 @@ def clock_task() -> None:
     hours = 0
     try:
         while True:
-
             if shutdown_button.is_pressed:
                 time.sleep(1)
                 continue

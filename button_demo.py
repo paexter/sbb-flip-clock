@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # filepath: /Users/pascal/git/sbb-flip-clock/button_demo.py
 
-from gpiozero import Button
 from signal import pause
+
+from gpiozero import Button
 
 # Adjust the pin number based on your wiring.
 button_1 = Button(6, bounce_time=0.1)

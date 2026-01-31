@@ -17,3 +17,9 @@ dependencies = [
     "rich==14.0.0",
     # "speexdsp_ns==0.1.2", # Linux only
 ]
+[tool.ruff]
+exclude = ["sbb_fallblatt"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = []
