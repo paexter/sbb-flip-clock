@@ -10,8 +10,9 @@ class WakeWordDetector:
     @dataclass
     class Config:
         input_device_name: str | None = None
-        # Linux only, requires pyaudio with speex support
-        enable_speex_noise_suppression: bool = False
+        enable_speex_noise_suppression: bool = (
+            False  # Linux only, requires pyaudio with speex support
+        )
 
     def __init__(self, config: Config | None = None) -> None:
         self._config = config or WakeWordDetector.Config()

@@ -6,7 +6,10 @@ rich.traceback.install(show_locals=True)
 
 
 if __name__ == "__main__":
-    wake_word_detector = WakeWordDetector()
+    config = WakeWordDetector.Config()
+    config.input_device_name "MacBook Pro Microphone"
+    
+    wake_word_detector = WakeWordDetector(config=config)
 
     def wake_word_handler() -> None:
         # print("Wake word callback triggered!")
