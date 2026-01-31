@@ -15,8 +15,8 @@ rich.traceback.install(show_locals=True)
 SBB_MODULE_ADDR_HOUR = 27  # 12
 SBB_MODULE_ADDR_MIN = 1  # TBD
 
-wake_word_button = Button(6, bounce_time=0.1)
-shutdown_button = Button(26, bounce_time=0.1)
+wake_word_button = Button(6, bounce_time=0.2)
+shutdown_button = Button(26, bounce_time=0.2)
 
 wake_word_triggered: bool = False
 clock = None
