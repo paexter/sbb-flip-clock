@@ -21,8 +21,12 @@ shutdown_button = Button(26, bounce_time=0.1)
 wake_word_triggered: bool = False
 
 
+def wake_word_button_handler() -> None:
+    print("[Wake Word Button Handler] Wake word mode is turned on!")
+
+
 def shutdown_button_handler() -> None:
-    print("[Shutdown Button Task] Shutdown initiated by shutdown button press!")
+    print("[Shutdown Button Handler] Shutdown initiated by shutdown button press!")
     # You can allow a specific shutdown command to be executed without a password.
     # For example, add the following line to your sudoers file (using visudo):
 
@@ -34,6 +38,7 @@ def shutdown_button_handler() -> None:
 
 
 # Attach the callback to the button press event.
+wake_word_button.when_pressed = wake_word_button_handler
 shutdown_button.when_pressed = shutdown_button_handler
 
 
