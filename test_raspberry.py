@@ -7,9 +7,8 @@ rich.traceback.install(show_locals=True)
 
 if __name__ == "__main__":
     config = WakeWordDetector.Config()
-    config.enable_speex_noise_suppression = False
+    config.enable_speex_noise_suppression = True
     config.input_device_name = "USB PnP Sound Device: Audio"
-    # config.enable_speex_noise_suppression = True
     # config.input_device_name = "HD Pro Webcam C920: USB Audio"
 
     wake_word_detector = WakeWordDetector(config=config)
