@@ -21,11 +21,13 @@ wake_word_triggered: bool = False
 
 def shutdown_button_handler() -> None:
     print("[Shutdown Button Task] Shutdown initiated by shutdown button press!")
-    # You can allow a specific shutdown command to be executed without a password. For example, add the following line to your sudoers file (using visudo):
+    # You can allow a specific shutdown command to be executed without a password.
+    # For example, add the following line to your sudoers file (using visudo):
 
     # your_username ALL=(ALL) NOPASSWD: /sbin/shutdown
 
-    # Replace your_username with your actual username. Then you can call shutdown without needing sudo credentials in your script.
+    # Replace your_username with your actual username. Then you can call shutdown
+    # without needing sudo credentials in your script.
     os.system("sudo shutdown -h now")
 
 
@@ -84,9 +86,7 @@ def clock_task() -> None:
             hours += 1
             hours %= 24
 
-            print(
-                f"[Clock Task] Setting clock to {hours:02d} hours and {minutes:02d} minutes."
-            )
+            print(f"[Clock Task] Setting time to {hours:02d}:{minutes:02d}.")
 
             clock.set_hour(hours)
             clock.set_minute(minutes)
