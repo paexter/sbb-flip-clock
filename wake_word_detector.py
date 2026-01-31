@@ -9,6 +9,7 @@ class WakeWordDetector:
     @dataclass
     class Config:
         input_device_name: str | None = None
+        sample_rate: int = 16000  # Audio sample rate in Hz
         enable_speex_noise_suppression: bool = (
             False  # Linux only, requires pyaudio with speex support
         )
@@ -30,7 +31,7 @@ class WakeWordDetector:
 
         self._sample_format: int = pyaudio.paInt16
         self._channel_count: int = 1
-        self._sample_rate: int = 16000
+        self._sample_rate: int = self._config.sample_rate
         self._sample_count_per_chunk: int = 1280
 
         # Get microphone stream
@@ -67,10 +68,14 @@ class WakeWordDetector:
         self._wake_word_callback: bool = None
 
     def _print_audio_devices(self) -> None:
-        """Print all available audio devices."""
+        """Print all available input audio devices."""
         for i in range(self._audio.get_device_count()):
             device_info = self._audio.get_device_info_by_index(i)
-            print(f"- Audio device {i}: {device_info['name']}")
+            if device_info["maxInputChannels"] > 0:
+                sample_rate = int(device_info["defaultSampleRate"])
+                print(
+                    f"- Audio device {i}: {device_info['name']} ({sample_rate} Hz)"
+                )
 
     def _find_device_index_by_name(self, name: str) -> int:
         """Find audio device index by partial name match (case-insensitive)."""
