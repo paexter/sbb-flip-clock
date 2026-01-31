@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 import pyaudio
 import numpy as np
 
@@ -5,7 +7,12 @@ from openwakeword.model import Model
 
 
 class WakeWordDetector:
-    def __init__(self) -> None:
+    @dataclass
+    class Config:
+        input_device_name: str | None = None
+
+    def __init__(self, config: Config | None = None) -> None:
+        self._config = config or WakeWordDetector.Config()
         self._detection_threshold: float = 0.1
 
         # TODO: Make all variables lowercase
@@ -24,8 +31,6 @@ class WakeWordDetector:
         self._CHANNEL_COUNT: int = 1
         self._SAMPLE_RATE: int = 16000
         self._SAMPLE_COUNT_PER_CHUNK: int = 1280
-        # Partial match supported, e.g., "USB" or "MacBook". None uses default.
-        self._INPUT_DEVICE_NAME: str | None = None
 
         self._ENABLE_SPEEX_NOISE_SUPPRESSION: bool = (
             False  # Linux only, requires pyaudio with speex support
@@ -38,9 +43,9 @@ class WakeWordDetector:
         self._print_audio_devices()
 
         input_device_index: int | None = None
-        if self._INPUT_DEVICE_NAME:
+        if self._config.input_device_name:
             input_device_index = self._find_device_index_by_name(
-                self._INPUT_DEVICE_NAME
+                self._config.input_device_name
             )
 
         self._mic_stream: pyaudio._Stream = self._audio.open(
