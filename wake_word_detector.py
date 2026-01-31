@@ -10,6 +10,8 @@ class WakeWordDetector:
     @dataclass
     class Config:
         input_device_name: str | None = None
+        # Linux only, requires pyaudio with speex support
+        enable_speex_noise_suppression: bool = False
 
     def __init__(self, config: Config | None = None) -> None:
         self._config = config or WakeWordDetector.Config()
@@ -30,10 +32,6 @@ class WakeWordDetector:
         self._channel_count: int = 1
         self._sample_rate: int = 16000
         self._sample_count_per_chunk: int = 1280
-
-        self._enable_speex_noise_suppression: bool = (
-            False  # Linux only, requires pyaudio with speex support
-        )
 
         # Get microphone stream
         self._audio = pyaudio.PyAudio()
@@ -61,7 +59,7 @@ class WakeWordDetector:
             melspec_model_path=self._melspec_model_path,
             embedding_model_path=self._embedding_model_path,
             inference_framework=self._inference_framework,
-            enable_speex_noise_suppression=self._enable_speex_noise_suppression,
+            enable_speex_noise_suppression=self._config.enable_speex_noise_suppression,
         )
 
         self._model_count: int = len(self._model.models.keys())
