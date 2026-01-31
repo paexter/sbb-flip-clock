@@ -7,8 +7,9 @@ rich.traceback.install(show_locals=True)
 
 if __name__ == "__main__":
     config = WakeWordDetector.Config()
-    config.input_device_name "MacBook Pro Microphone"
-    
+    config.enable_speex_noise_suppression = False
+    # config.input_device_name = "..."
+
     wake_word_detector = WakeWordDetector(config=config)
 
     def wake_word_handler() -> None:
