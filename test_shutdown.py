@@ -6,8 +6,7 @@ from signal import pause
 
 from gpiozero import Button
 
-# TODO: Adjust the pin number based on your wiring.
-button = Button(17)
+button = Button(26)
 
 
 def shutdown_handler() -> None:
