@@ -8,7 +8,7 @@ rich.traceback.install(show_locals=True)
 if __name__ == "__main__":
     config = WakeWordDetector.Config()
     config.enable_speex_noise_suppression = False
-    # config.input_device_name = "..."
+    config.input_device_name = "USB PnP Sound Device: Audio"
 
     wake_word_detector = WakeWordDetector(config=config)
 
