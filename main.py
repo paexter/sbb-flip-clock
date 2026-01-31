@@ -24,38 +24,39 @@ clock = None
 
 def wake_word_button_handler() -> None:
     print("[Wake Word Button Handler] Wake word mode is turned on!")
+    if clock is not None:
+        clock.set_hour(12)
+        clock.set_minute(34)
 
 
 def shutdown_button_handler() -> None:
     global clock
-    print("[Shutdown Button Handler] Shutdown initiated by shutdown button press!")
 
-    if clock is not None:
-        clock.set_hour(0)
-        clock.set_minute(30)
+    for i in range(10, 0, -1):
+        print(f"[Shutdown Button Handler] Shutting down in {i} seconds...")
+        if clock is not None:
+            clock.set_hour(0)
+            clock.set_minute(60 - i)
 
-    for i in range(5, 0, -1):
+        time.sleep(1)
+
         if not shutdown_button.is_pressed:
             print("[Shutdown Button Handler] Button released, shutdown cancelled.")
             return
-        print(f"[Shutdown Button Handler] Shutting down in {i} seconds...")
-        time.sleep(1)
 
-    if shutdown_button.is_pressed:
-        print("[Shutdown Button Handler] Button still pressed, shutting down!")
-        if clock is not None:
-            clock.set_hour(0)
-            clock.set_minute(0)
-        # You can allow a specific shutdown command to be executed without a password.
-        # For example, add the following line to your sudoers file (using visudo):
+    print("[Shutdown Button Handler] Button still pressed, shutting down!")
+    if clock is not None:
+        clock.set_hour(0)
+        clock.set_minute(0)
 
-        # your_username ALL=(ALL) NOPASSWD: /sbin/shutdown
+    # You can allow a specific shutdown command to be executed without a password.
+    # For example, add the following line to your sudoers file (using visudo):
 
-        # Replace your_username with your actual username. Then you can call shutdown
-        # without needing sudo credentials in your script.
-        os.system("sudo shutdown -h now")
-    else:
-        print("[Shutdown Button Handler] Button released, shutdown cancelled.")
+    # your_username ALL=(ALL) NOPASSWD: /sbin/shutdown
+
+    # Replace your_username with your actual username. Then you can call shutdown
+    # without needing sudo credentials in your script.
+    os.system("sudo shutdown -h now")
 
 
 # Attach the callback to the button press event.
