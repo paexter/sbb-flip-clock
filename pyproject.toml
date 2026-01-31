@@ -13,6 +13,7 @@ dependencies = [
     "openwakeword==0.6.0", # Requires the "resources" directory from the 0.5.1 version or manually specified model path
     "rich==14.0.0",
     # "speexdsp_ns==0.1.2", # Linux only
+    "resampy>=0.4.3",
 ]
 [tool.ruff]
 exclude = ["sbb_fallblatt"]

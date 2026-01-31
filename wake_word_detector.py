@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 import numpy as np
 import pyaudio
+import resampy
 from openwakeword.model import Model
 
 
@@ -9,7 +10,6 @@ class WakeWordDetector:
     @dataclass
     class Config:
         input_device_name: str | None = None
-        sample_rate: int = 16000  # Audio sample rate in Hz
         enable_speex_noise_suppression: bool = (
             False  # Linux only, requires pyaudio with speex support
         )
@@ -29,9 +29,9 @@ class WakeWordDetector:
         # self._inference_framework = "tflite"
         self._inference_framework = "onnx"
 
+        self._model_sample_rate: int = 16000  # Fixed by wake word model
         self._sample_format: int = pyaudio.paInt16
         self._channel_count: int = 1
-        self._sample_rate: int = self._config.sample_rate
         self._sample_count_per_chunk: int = 1280
 
         # Get microphone stream
@@ -46,12 +46,28 @@ class WakeWordDetector:
                 self._config.input_device_name
             )
 
+        # Get native sample rate from device
+        device_info = self._audio.get_device_info_by_index(input_device_index or 0)
+        self._native_sample_rate: int = int(device_info["defaultSampleRate"])
+
+        # Adjust chunk size proportionally for native sample rate
+        native_chunk_size = int(
+            self._sample_count_per_chunk
+            * self._native_sample_rate
+            / self._model_sample_rate
+        )
+
+        print(
+            f"Recording at {self._native_sample_rate} Hz, "
+            f"resampling to {self._model_sample_rate} Hz"
+        )
+
         self._mic_stream: pyaudio._Stream = self._audio.open(
             format=self._sample_format,
             channels=self._channel_count,
-            rate=self._sample_rate,
+            rate=self._native_sample_rate,
             input=True,
-            frames_per_buffer=self._sample_count_per_chunk,
+            frames_per_buffer=native_chunk_size,
             input_device_index=input_device_index,
         )
 
@@ -61,6 +77,7 @@ class WakeWordDetector:
             embedding_model_path=self._embedding_model_path,
             inference_framework=self._inference_framework,
             enable_speex_noise_suppression=self._config.enable_speex_noise_suppression,
+            # vad_threshold = 0.3,
         )
 
         self._model_count: int = len(self._model.models.keys())
@@ -73,9 +90,7 @@ class WakeWordDetector:
             device_info = self._audio.get_device_info_by_index(i)
             if device_info["maxInputChannels"] > 0:
                 sample_rate = int(device_info["defaultSampleRate"])
-                print(
-                    f"- Audio device {i}: {device_info['name']} ({sample_rate} Hz)"
-                )
+                print(f"- Audio device {i}: {device_info['name']} ({sample_rate} Hz)")
 
     def _find_device_index_by_name(self, name: str) -> int:
         """Find audio device index by partial name match (case-insensitive)."""
@@ -106,13 +121,21 @@ class WakeWordDetector:
         print("#" * 100)
 
         while True:
-            # Get audio
+            # Get audio at native sample rate
             audio = np.frombuffer(
                 self._mic_stream.read(
-                    self._sample_count_per_chunk, exception_on_overflow=False
+                    self._mic_stream._frames_per_buffer, exception_on_overflow=False
                 ),
                 dtype=np.int16,
             )
+
+            # Resample to model sample rate if needed
+            if self._native_sample_rate != self._model_sample_rate:
+                audio = resampy.resample(
+                    audio.astype(np.float32),
+                    self._native_sample_rate,
+                    self._model_sample_rate,
+                ).astype(np.int16)
 
             # Feed to model
             _ = self._model.predict(audio)
