@@ -15,24 +15,23 @@ class WakeWordDetector:
         self._config = config or WakeWordDetector.Config()
         self._detection_threshold: float = 0.1
 
-        # TODO: Make all variables lowercase
-        self._WAKE_WORD_MODEL_PATHS: list[str] = [
+        self._wake_word_model_paths: list[str] = [
             # "resources/models/alexa_v0.1.onnx",
             # "resources/models/custom/hey_clock.onnx",
             "resources/models/custom/tic_toc.onnx",
         ]
-        self._MELSPEC_MODEL_PATH: str = "resources/models/melspectrogram.onnx"
-        self._EMBEDDING_MODEL_PATH: str = "resources/models/embedding_model.onnx"
+        self._melspec_model_path: str = "resources/models/melspectrogram.onnx"
+        self._embedding_model_path: str = "resources/models/embedding_model.onnx"
 
-        # self._INFERENCE_FRAMEWORK = "tflite"
-        self._INFERENCE_FRAMEWORK = "onnx"
+        # self._inference_framework = "tflite"
+        self._inference_framework = "onnx"
 
-        self._SAMPLE_FORMAT: int = pyaudio.paInt16
-        self._CHANNEL_COUNT: int = 1
-        self._SAMPLE_RATE: int = 16000
-        self._SAMPLE_COUNT_PER_CHUNK: int = 1280
+        self._sample_format: int = pyaudio.paInt16
+        self._channel_count: int = 1
+        self._sample_rate: int = 16000
+        self._sample_count_per_chunk: int = 1280
 
-        self._ENABLE_SPEEX_NOISE_SUPPRESSION: bool = (
+        self._enable_speex_noise_suppression: bool = (
             False  # Linux only, requires pyaudio with speex support
         )
 
@@ -49,20 +48,20 @@ class WakeWordDetector:
             )
 
         self._mic_stream: pyaudio._Stream = self._audio.open(
-            format=self._SAMPLE_FORMAT,
-            channels=self._CHANNEL_COUNT,
-            rate=self._SAMPLE_RATE,
+            format=self._sample_format,
+            channels=self._channel_count,
+            rate=self._sample_rate,
             input=True,
-            frames_per_buffer=self._SAMPLE_COUNT_PER_CHUNK,
+            frames_per_buffer=self._sample_count_per_chunk,
             input_device_index=input_device_index,
         )
 
         self._model = Model(
-            wakeword_models=self._WAKE_WORD_MODEL_PATHS,
-            melspec_model_path=self._MELSPEC_MODEL_PATH,
-            embedding_model_path=self._EMBEDDING_MODEL_PATH,
-            inference_framework=self._INFERENCE_FRAMEWORK,
-            enable_speex_noise_suppression=self._ENABLE_SPEEX_NOISE_SUPPRESSION,
+            wakeword_models=self._wake_word_model_paths,
+            melspec_model_path=self._melspec_model_path,
+            embedding_model_path=self._embedding_model_path,
+            inference_framework=self._inference_framework,
+            enable_speex_noise_suppression=self._enable_speex_noise_suppression,
         )
 
         self._model_count: int = len(self._model.models.keys())
@@ -107,7 +106,7 @@ class WakeWordDetector:
             # Get audio
             audio = np.frombuffer(
                 self._mic_stream.read(
-                    self._SAMPLE_COUNT_PER_CHUNK, exception_on_overflow=False
+                    self._sample_count_per_chunk, exception_on_overflow=False
                 ),
                 dtype=np.int16,
             )
