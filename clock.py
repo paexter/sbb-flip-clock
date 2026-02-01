@@ -1,7 +1,7 @@
 import os
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from signal import pause
 
 import rich.traceback
@@ -13,15 +13,17 @@ rich.traceback.install(show_locals=True)
 
 
 class Clock:
-    def __init__(self, addr_hour: int, addr_min: int, enable_demo_mode: bool) -> None:
+    def __init__(
+        self, addr_hour: int, addr_min: int, enable_demo_mode: bool = False
+    ) -> None:
         self._addr_hour: int = addr_hour
         self._addr_min: int = addr_min
-        self._enable_demo_mode: bool = False
+        self._enable_demo_mode: bool = enable_demo_mode
 
         self._wake_word_button = Button(6, bounce_time=0.2)
         self._shutdown_button = Button(26, bounce_time=0.2)
 
-        self._wake_word_triggered: bool = False
+        self._wake_word_trigger_time: datetime | None = None
         self._panel_clock = None
 
         # Attach the callbacks to the button press events
@@ -63,12 +65,12 @@ class Clock:
     def _wake_word_task(self) -> None:
         print("[Wake Word Task] Starting!")
 
-        # TODO: Implement
-        # def wake_word_handler() -> None:
-        #     print("Wake word callback triggered!")
-        #     wake_word_triggered = True
-        #     TODO: Set the time
+        def wake_word_handler() -> None:
+            print("[Wake Word Handler] Wake word callback triggered!")
+            if self._wake_word_trigger_time is None:
+                self._wake_word_trigger_time = datetime.now()
 
+        # TODO: Implement
         # wake_word_detector = WakeWordDetector()
         # wake_word_detector.register_wake_word_callback(wake_word_handler)
         # wake_word_detector.listen_for_wake_word()
@@ -91,30 +93,36 @@ class Clock:
                     time.sleep(1)
                     continue
 
-                if self._wake_word_button.is_pressed and not self._wake_word_triggered:
-                    time.sleep(1)
-                    continue
+                if self._wake_word_button.is_pressed:
+                    if self._wake_word_trigger_time is None:
+                        time.sleep(1)
+                        continue
+                    else:
+                        elapsed: timedelta = (
+                            datetime.now() - self._wake_word_trigger_time
+                        )
+                        if elapsed.total_seconds() > 60 * 5:  # 5 minutes
+                            # Expired: reset trigger time
+                            self._wake_word_trigger_time = None
+                            self._panel_clock.set_hour(12)
+                            self._panel_clock.set_minute(34)
+                            continue
 
                 if self._enable_demo_mode:
                     minutes += 1
                     minutes %= 60
-
                     hours += 1
                     hours %= 24
-
-                    print(f"[Clock Task] Setting time to {hours:02d}:{minutes:02d}.")
-
+                    print(f"[Clock Task] Setting time to {hours:02d}:{minutes:02d}")
                     self._panel_clock.set_hour(hours)
                     self._panel_clock.set_minute(minutes)
-
                     time.sleep(3)
                 else:
                     self._panel_clock.set_time_now()
-                    ts: datetime = datetime.utcnow()
+                    ts: datetime = datetime.now()
                     sleeptime: float = 60 - (ts.second + ts.microsecond / 1000000.0)
                     time.sleep(sleeptime)
 
-                self._wake_word_triggered = False
         except KeyboardInterrupt:
             print("[Clock Task] Exiting!")
 
