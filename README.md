@@ -18,6 +18,7 @@
 * Activate environment: `source .venv/bin/activate` or `source .venv/bin/activate.fish`
 * Install dependencies: `uv sync`
 * Verify that `lgpio` package is present even though not explicitly installed with `uv sync`: `uv run python -m pip list | grep lgpio`
+* To enable clock shutdown use `visudo` a set `<your_username> ALL=(ALL) NOPASSWD: /sbin/shutdown`. Replace `<your_username>` with your actual username.
 * Run script with system Python without activating the environment `uv run python main.py`  or `uv run python test_raspberry.py`
 
 ### Run the application at startup
