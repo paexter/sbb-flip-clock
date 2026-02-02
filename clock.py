@@ -83,7 +83,8 @@ class Clock:
                 return
 
         print("[Shutdown Button Pressed Handler] Button still pressed, shutting down!")
-        self._panel_clock.set_zero()
+        self._panel_clock.set_hour(0)
+        self._panel_clock.set_minute(0)
 
         # You can allow a specific shutdown command to be executed without a password.
         # For example, add the following line to your sudoers file (using visudo):
