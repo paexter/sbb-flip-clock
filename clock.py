@@ -39,7 +39,8 @@ class Clock:
             self._panel_clock.set_hour(0)
             self._panel_clock.set_minute(60 - self._shutdown_timeout)
         else:
-            self._panel_clock.set_zero()
+            self._panel_clock.set_hour(0)
+            self._panel_clock.set_minute(0)
 
         # Attach the callbacks to the button press events
         self._wake_word_button.when_pressed = self._wake_word_button_pressed_handler
@@ -68,6 +69,8 @@ class Clock:
     def _shutdown_button_pressed_handler(self) -> None:
         self._panel_clock.set_hour(0)
         self._panel_clock.set_minute(60 - self._shutdown_timeout)
+
+        time.sleep(3)
 
         for i in range(self._shutdown_timeout, 0, -1):
             print(f"[Shutdown Button Pressed Handler] Shutting down in {i} seconds...")
@@ -133,6 +136,8 @@ class Clock:
                         )
                         if elapsed.total_seconds() > 60 * self._wake_word_timeout:
                             self._wake_word_trigger_time = None
+                            self._panel_clock.set_hour(12)
+                            self._panel_clock.set_minute(34)
                             continue
                 else:
                     self._wake_word_trigger_time = None
