@@ -58,10 +58,6 @@ class Clock:
         self._panel_clock.set_hour(12)
         self._panel_clock.set_minute(34)
 
-        time.sleep(5)
-        print("------simulate wake word button press")
-        self._wake_word_trigger_time = datetime.now()  # Dummy call
-
     def _wake_word_button_released_handler(self) -> None:
         print("[Wake Word Button Released Handler] Resetting demo clock!")
         self._demo_minutes = 0
@@ -107,9 +103,16 @@ class Clock:
         print("[Wake Word Task] Starting!")
 
         def wake_word_handler() -> None:
+            if not self._wake_word_button.is_pressed:
+                print("[Wake Word Handler] Wake word mode is not active!")
+                return
+
+            if self._wake_word_trigger_time is not None:
+                print("[Wake Word Handler] Wake word has already been triggered!")
+                return
+
             print("[Wake Word Handler] Wake word callback triggered!")
-            if self._wake_word_trigger_time is None:
-                self._wake_word_trigger_time = datetime.now()
+            self._wake_word_trigger_time = datetime.now()
 
         config = WakeWordDetector.Config()
         config.enable_speex_noise_suppression = True
