@@ -23,8 +23,23 @@ class Clock:
         self._wake_word_button = Button(6, bounce_time=0.2)
         self._shutdown_button = Button(26, bounce_time=0.2)
 
+        self._shutdown_timeout: int = 10  # Seconds
+        self._wake_word_timeout: int = 5  # Minutes
+
         self._wake_word_trigger_time: datetime | None = None
-        self._panel_clock = None
+        self._panel_clock = sbb_rs485.PanelClockControl(
+            port="/dev/ttyS0", addr_hour=self._addr_hour, addr_min=self._addr_min
+        )
+        self._panel_clock.connect()
+
+        if self._wake_word_button.is_pressed:
+            self._panel_clock.set_hour(12)
+            self._panel_clock.set_minute(34)
+        elif self._shutdown_button.is_pressed:
+            self._panel_clock.set_hour(0)
+            self._panel_clock.set_minute(60 - self._shutdown_timeout)
+        else:
+            self._panel_clock.set_zero()
 
         # Attach the callbacks to the button press events
         self._wake_word_button.when_pressed = self._wake_word_button_handler
@@ -32,16 +47,16 @@ class Clock:
 
     def _wake_word_button_handler(self) -> None:
         print("[Wake Word Button Handler] Wake word mode is turned on!")
-        if self._panel_clock is not None:
-            self._panel_clock.set_hour(12)
-            self._panel_clock.set_minute(34)
+
+        time.sleep(5)
+        print("------simulatre wake word button press")
+        self._wake_word_trigger_time = datetime.now()  # Dummy call
 
     def _shutdown_button_handler(self) -> None:
-        for i in range(10, 0, -1):
+        for i in range(self._shutdown_timeout, 0, -1):
             print(f"[Shutdown Button Handler] Shutting down in {i} seconds...")
-            if self._panel_clock is not None:
-                self._panel_clock.set_hour(0)
-                self._panel_clock.set_minute(60 - i)
+            self._panel_clock.set_hour(0)
+            self._panel_clock.set_minute(60 - i)
 
             time.sleep(1)
 
@@ -50,8 +65,7 @@ class Clock:
                 return
 
         print("[Shutdown Button Handler] Button still pressed, shutting down!")
-        if self._panel_clock is not None:
-            self._panel_clock.set_zero()
+        self._panel_clock.set_zero()
 
         # You can allow a specific shutdown command to be executed without a password.
         # For example, add the following line to your sudoers file (using visudo):
@@ -80,13 +94,8 @@ class Clock:
     def _clock_task(self) -> None:
         print("[Clock Task] Starting!")
 
-        self._panel_clock = sbb_rs485.PanelClockControl(
-            port="/dev/ttyS0", addr_hour=self._addr_hour, addr_min=self._addr_min
-        )
-        self._panel_clock.connect()
-
-        minutes = 0
-        hours = 0
+        minutes: int = 0
+        hours: int = 0
         try:
             while True:
                 if self._shutdown_button.is_pressed:
@@ -95,17 +104,19 @@ class Clock:
 
                 if self._wake_word_button.is_pressed:
                     if self._wake_word_trigger_time is None:
+                        minutes = 0
+                        hours = 0
+                        self._panel_clock.set_hour(12)
+                        self._panel_clock.set_minute(34)
                         time.sleep(1)
                         continue
                     else:
                         elapsed: timedelta = (
                             datetime.now() - self._wake_word_trigger_time
                         )
-                        if elapsed.total_seconds() > 60 * 5:  # 5 minutes
+                        if elapsed.total_seconds() > 60 * self._wake_word_timeout:
                             # Expired: reset trigger time
                             self._wake_word_trigger_time = None
-                            self._panel_clock.set_hour(12)
-                            self._panel_clock.set_minute(34)
                             continue
 
                 if self._enable_demo_mode:
