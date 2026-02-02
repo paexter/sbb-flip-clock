@@ -42,29 +42,45 @@ class Clock:
             self._panel_clock.set_zero()
 
         # Attach the callbacks to the button press events
-        self._wake_word_button.when_pressed = self._wake_word_button_handler
-        self._shutdown_button.when_pressed = self._shutdown_button_handler
+        self._wake_word_button.when_pressed = self._wake_word_button_pressed_handler
+        self._shutdown_button.when_pressed = self._shutdown_button_pressed_handler
 
-    def _wake_word_button_handler(self) -> None:
-        print("[Wake Word Button Handler] Wake word mode is turned on!")
+        self._wake_word_button.when_released = self._wake_word_button_released_handler
+        self._shutdown_button.when_released = self._shutdown_button_released_handler
+
+        self._demo_minutes: int = 0
+        self._demo_hours: int = 0
+
+    def _wake_word_button_pressed_handler(self) -> None:
+        print("[Wake Word Button Pressed Handler] Wake word mode is turned on!")
+        self._panel_clock.set_hour(12)
+        self._panel_clock.set_minute(34)
 
         time.sleep(5)
-        print("------simulatre wake word button press")
+        print("------simulate wake word button press")
         self._wake_word_trigger_time = datetime.now()  # Dummy call
 
-    def _shutdown_button_handler(self) -> None:
+    def _wake_word_button_released_handler(self) -> None:
+        print("[Wake Word Button Released Handler] Resetting demo clock!")
+        self._demo_minutes = 0
+        self._demo_hours = 0
+
+    def _shutdown_button_pressed_handler(self) -> None:
         for i in range(self._shutdown_timeout, 0, -1):
-            print(f"[Shutdown Button Handler] Shutting down in {i} seconds...")
+            print(f"[Shutdown Button Pressed Handler] Shutting down in {i} seconds...")
             self._panel_clock.set_hour(0)
             self._panel_clock.set_minute(60 - i)
 
             time.sleep(1)
 
             if not self._shutdown_button.is_pressed:
-                print("[Shutdown Button Handler] Button released, shutdown cancelled.")
+                print(
+                    "[Shutdown Button Pressed Handler] "
+                    "Button released, shutdown cancelled."
+                )
                 return
 
-        print("[Shutdown Button Handler] Button still pressed, shutting down!")
+        print("[Shutdown Button Pressed Handler] Button still pressed, shutting down!")
         self._panel_clock.set_zero()
 
         # You can allow a specific shutdown command to be executed without a password.
@@ -75,6 +91,11 @@ class Clock:
         # Replace your_username with your actual username. Then you can call shutdown
         # without needing sudo credentials in your script.
         os.system("sudo shutdown -h now")
+
+    def _shutdown_button_released_handler(self) -> None:
+        print("[Shutdown Button Released Handler] Resetting demo clock!")
+        self._demo_minutes = 0
+        self._demo_hours = 0
 
     def _wake_word_task(self) -> None:
         print("[Wake Word Task] Starting!")
@@ -94,8 +115,6 @@ class Clock:
     def _clock_task(self) -> None:
         print("[Clock Task] Starting!")
 
-        minutes: int = 0
-        hours: int = 0
         try:
             while True:
                 if self._shutdown_button.is_pressed:
@@ -104,10 +123,6 @@ class Clock:
 
                 if self._wake_word_button.is_pressed:
                     if self._wake_word_trigger_time is None:
-                        minutes = 0
-                        hours = 0
-                        self._panel_clock.set_hour(12)
-                        self._panel_clock.set_minute(34)
                         time.sleep(1)
                         continue
                     else:
@@ -115,18 +130,22 @@ class Clock:
                             datetime.now() - self._wake_word_trigger_time
                         )
                         if elapsed.total_seconds() > 60 * self._wake_word_timeout:
-                            # Expired: reset trigger time
                             self._wake_word_trigger_time = None
                             continue
+                else:
+                    self._wake_word_trigger_time = None
 
                 if self._enable_demo_mode:
-                    minutes += 1
-                    minutes %= 60
-                    hours += 1
-                    hours %= 24
-                    print(f"[Clock Task] Setting time to {hours:02d}:{minutes:02d}")
-                    self._panel_clock.set_hour(hours)
-                    self._panel_clock.set_minute(minutes)
+                    self._demo_minutes += 1
+                    self._demo_minutes %= 60
+                    self._demo_hours += 1
+                    self._demo_hours %= 24
+                    print(
+                        f"[Clock Task] Setting time to {self._demo_hours:02d}:"
+                        f"{self._demo_minutes:02d}"
+                    )
+                    self._panel_clock.set_hour(self._demo_hours)
+                    self._panel_clock.set_minute(self._demo_minutes)
                     time.sleep(3)
                 else:
                     self._panel_clock.set_time_now()
