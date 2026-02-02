@@ -8,6 +8,7 @@ import rich.traceback
 from gpiozero import Button
 
 from sbb_fallblatt import sbb_rs485
+from wake_word_detector import WakeWordDetector
 
 rich.traceback.install(show_locals=True)
 
@@ -110,10 +111,13 @@ class Clock:
             if self._wake_word_trigger_time is None:
                 self._wake_word_trigger_time = datetime.now()
 
-        # TODO: Implement
-        # wake_word_detector = WakeWordDetector()
-        # wake_word_detector.register_wake_word_callback(wake_word_handler)
-        # wake_word_detector.listen_for_wake_word()
+        config = WakeWordDetector.Config()
+        config.enable_speex_noise_suppression = True
+        config.input_device_name = "PCM2902 Audio Codec Analog Mono"
+
+        wake_word_detector = WakeWordDetector(config=config)
+        wake_word_detector.register_wake_word_callback(wake_word_handler)
+        wake_word_detector.listen_for_wake_word()
 
         pause()
 
