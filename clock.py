@@ -66,9 +66,11 @@ class Clock:
         self._demo_hours = 0
 
     def _shutdown_button_pressed_handler(self) -> None:
+        self._panel_clock.set_hour(0)
+        self._panel_clock.set_minute(60 - self._shutdown_timeout)
+
         for i in range(self._shutdown_timeout, 0, -1):
             print(f"[Shutdown Button Pressed Handler] Shutting down in {i} seconds...")
-            self._panel_clock.set_hour(0)
             self._panel_clock.set_minute(60 - i)
 
             time.sleep(1)
