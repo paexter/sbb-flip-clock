@@ -7,7 +7,7 @@ requires-python = ">=3.11"
 dependencies = [
     "pyserial==3.5",
     "gpiozero==1.5.1",
-    "pyaudio==0.2.14",
+    "miniaudio>=1.59",
     "numpy==2.2.6",
     # "tflite-runtime==2.14.0",
     "openwakeword==0.6.0",                         # Requires the "resources" directory from the 0.5.1 version or manually specified model path

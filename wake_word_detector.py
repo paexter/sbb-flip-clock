@@ -1,7 +1,8 @@
+import queue
 from dataclasses import dataclass
 
+import miniaudio
 import numpy as np
-import pyaudio
 from openwakeword.model import Model
 
 
@@ -29,31 +30,35 @@ class WakeWordDetector:
         self._inference_framework = "onnx"
 
         self._model_sample_rate: int = 16000  # Fixed by wake word model
-        self._sample_format: int = pyaudio.paInt16
+        self._sample_format = miniaudio.SampleFormat.SIGNED16
         self._channel_count: int = 1
         self._sample_count_per_chunk: int = 1280
 
         # Get microphone stream
-        self._audio = pyaudio.PyAudio()
+        self._devices = miniaudio.Devices()
+        self._captures = self._devices.get_captures()
 
         print("Available audio devices:")
         self._print_audio_devices()
 
-        input_device_index: int | None = None
+        device_id = None
         if self._config.input_device_name:
-            input_device_index = self._find_device_index_by_name(
+            device_id = self._find_device_id_by_name(
                 self._config.input_device_name
             )
 
         print(f"Recording at {self._model_sample_rate} Hz")
 
-        self._mic_stream: pyaudio._Stream = self._audio.open(
-            format=self._sample_format,
-            channels=self._channel_count,
-            rate=self._model_sample_rate,
-            input=True,
-            frames_per_buffer=self._sample_count_per_chunk,
-            input_device_index=input_device_index,
+        self._audio_queue: queue.Queue[bytes] = queue.Queue()
+        buffersize_msec = int(
+            1000 * self._sample_count_per_chunk / self._model_sample_rate
+        )
+        self._capture_device = miniaudio.CaptureDevice(
+            input_format=self._sample_format,
+            nchannels=self._channel_count,
+            sample_rate=self._model_sample_rate,
+            buffersize_msec=buffersize_msec,
+            device_id=device_id,
         )
 
         self._model = Model(
@@ -71,48 +76,50 @@ class WakeWordDetector:
 
     def _print_audio_devices(self) -> None:
         """Print all available input audio devices."""
-        for i in range(self._audio.get_device_count()):
-            device_info = self._audio.get_device_info_by_index(i)
-            if device_info["maxInputChannels"] > 0:
-                sample_rate = int(device_info["defaultSampleRate"])
-                print(f"- Audio device {i}: {device_info['name']} ({sample_rate} Hz)")
+        for i, device in enumerate(self._captures):
+            print(f"- Audio device {i}: {device['name']}")
 
-    def _find_device_index_by_name(self, name: str) -> int:
+    def _find_device_id_by_name(self, name: str):
         """Find audio device index by partial name match (case-insensitive)."""
         matches = []
-        for i in range(self._audio.get_device_count()):
-            device_info = self._audio.get_device_info_by_index(i)
-            if name.lower() in device_info["name"].lower():
-                matches.append((i, device_info["name"]))
+        for i, device in enumerate(self._captures):
+            if name.lower() in device["name"].lower():
+                matches.append((i, device["name"], device["id"]))
 
         print(f"Searching for audio device matching '{name}':")
 
         if len(matches) == 0:
             raise ValueError(f"No audio device found matching '{name}'")
         if len(matches) > 1:
-            match_names = "\n  ".join(f"{i}: {n}" for i, n in matches)
+            match_names = "\n  ".join(f"{i}: {n}" for i, n, _ in matches)
             raise ValueError(f"Multiple audio devices match '{name}':\n  {match_names}")
 
         print(f"Selected audio device {matches[0][0]}: {matches[0][1]}")
-        return matches[0][0]
+        return matches[0][2]
 
     def register_wake_word_callback(self, callback):
         """Register a callback to be called when a wake word is detected."""
         self._wake_word_callback = callback
+
+    def _audio_callback_generator(self):
+        while True:
+            data = yield
+            if data:
+                self._audio_queue.put(data)
 
     def listen_for_wake_word(self) -> None:
         print("#" * 100)
         print("Listening for wake words...")
         print("#" * 100)
 
+        callback = self._audio_callback_generator()
+        next(callback)
+        self._capture_device.start(callback)
+
         while True:
             # Get audio at native sample rate
-            audio = np.frombuffer(
-                self._mic_stream.read(
-                    self._sample_count_per_chunk, exception_on_overflow=False
-                ),
-                dtype=np.int16,
-            )
+            raw_data = self._audio_queue.get()
+            audio = np.frombuffer(raw_data, dtype=np.int16)
 
             # Feed to model
             _ = self._model.predict(audio)
