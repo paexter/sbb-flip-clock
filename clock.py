@@ -153,9 +153,7 @@ class Clock:
                     time.sleep(1)
                     continue
                 else:
-                    elapsed: timedelta = (
-                        datetime.now() - self._wake_word_trigger_time
-                    )
+                    elapsed: timedelta = datetime.now() - self._wake_word_trigger_time
                     if elapsed.total_seconds() > 60 * self._wake_word_timeout:
                         self._wake_word_trigger_time = None
                         self._panel_clock.set_hour(12)
@@ -195,12 +193,6 @@ class Clock:
         # Stop wake word detector
         if self._wake_word_detector:
             self._wake_word_detector.stop()
-
-        # Close panel clock connection
-        try:
-            self._panel_clock.disconnect()
-        except Exception as e:
-            print(f"[Clock] Error disconnecting panel clock: {e}")
 
         print("[Clock] Shutdown complete")
 
