@@ -34,9 +34,9 @@
 
 * Copy service to system location: `sudo cp sbb-flip-clock.service /etc/systemd/system/`
 * Reload systemd daemon: `sudo systemctl daemon-reload`
-* Enable service to start at boot: `sudo systemctl enable sbb-flip-clock.service`
-* Start service now: `sudo systemctl start sbb-flip-clock.service`
-* Check service status: `sudo systemctl status sbb-flip-clock.service`
+* Enable service to start at boot: `sudo systemctl enable sbb-flip-clock`
+* Start service now: `sudo systemctl start sbb-flip-clock`
+* Check service status: `sudo systemctl status sbb-flip-clock`
 
 **Useful commands:**
 
