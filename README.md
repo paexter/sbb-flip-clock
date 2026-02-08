@@ -30,6 +30,7 @@
 * `sudo systemctl enable sbb-flip-clock`
 * `sudo systemctl start sbb-flip-clock`
 * `sudo systemctl restart sbb-flip-clock`
+* `sudo systemctl stop sbb-flip-clock`
 * `sudo systemctl status sbb-flip-clock`
 * `journalctl -u sbb-flip-clock`
 
