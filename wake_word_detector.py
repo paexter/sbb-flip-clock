@@ -13,10 +13,28 @@ class WakeWordDetector:
         enable_speex_noise_suppression: bool = (
             False  # Linux only, requires pyaudio with speex support
         )
+        audio_gain: float = 1.0
+        detection_threshold: float = 0.1
 
     def __init__(self, config: Config | None = None) -> None:
         self._config = config or WakeWordDetector.Config()
-        self._detection_threshold: float = 0.1
+        self._max_gain: float = 10.0
+
+        # Validate configuration
+        if self._config.audio_gain < 0:
+            raise ValueError("audio_gain must be non-negative")
+        if self._config.audio_gain > self._max_gain:
+            print(
+                f"Warning: audio_gain {self._config.audio_gain} exceeds "
+                f"max_gain {self._max_gain}, will be clamped"
+            )
+        if (
+            self._config.detection_threshold <= 0
+            or self._config.detection_threshold > 1
+        ):
+            raise ValueError("detection_threshold must be between 0 and 1")
+
+        self._detection_threshold: float = self._config.detection_threshold
 
         self._wake_word_model_paths: list[str] = [
             # "resources/models/alexa_v0.1.onnx",
@@ -43,9 +61,7 @@ class WakeWordDetector:
 
         device_id = None
         if self._config.input_device_name:
-            device_id = self._find_device_id_by_name(
-                self._config.input_device_name
-            )
+            device_id = self._find_device_id_by_name(self._config.input_device_name)
 
         print(f"Recording at {self._model_sample_rate} Hz")
 
@@ -101,6 +117,34 @@ class WakeWordDetector:
         """Register a callback to be called when a wake word is detected."""
         self._wake_word_callback = callback
 
+    def _apply_audio_gain(self, audio: np.ndarray) -> np.ndarray:
+        """
+        Apply software gain to audio signal with clipping protection.
+
+        Args:
+            audio: Input audio as int16 numpy array
+
+        Returns:
+            Gain-adjusted audio as int16 numpy array
+        """
+        # Clamp gain to safety limit
+        gain = min(self._config.audio_gain, self._max_gain)
+
+        if gain == 1.0:
+            return audio
+
+        # Convert to float32 for processing to avoid overflow
+        audio_float = audio.astype(np.float32)
+
+        # Apply gain
+        audio_float *= gain
+
+        # Clip to prevent distortion (always enabled)
+        audio_float = np.clip(audio_float, -32768, 32767)
+
+        # Convert back to int16
+        return audio_float.astype(np.int16)
+
     def _audio_callback_generator(self):
         while True:
             data = yield
@@ -120,6 +164,10 @@ class WakeWordDetector:
             # Get audio at native sample rate
             raw_data = self._audio_queue.get()
             audio = np.frombuffer(raw_data, dtype=np.int16)
+
+            # Apply software gain if configured
+            if self._config.audio_gain != 1.0:
+                audio = self._apply_audio_gain(audio)
 
             # Feed to model
             _ = self._model.predict(audio)
