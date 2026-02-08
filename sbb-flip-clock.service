@@ -1,15 +1,11 @@
 [Unit]
 Description=SBB Flip Clock
-After=network.target
 
 [Service]
-# Should match the path that `which uv` returns.
 ExecStart=/home/sbb/.local/bin/uv run python /home/sbb/Desktop/sbb-flip-clock/main.py
 WorkingDirectory=/home/sbb/Desktop/sbb-flip-clock
 Restart=always
 RestartSec=5
-# User=sbb
-# Group=audio
 
 [Install]
 WantedBy=default.target

@@ -27,14 +27,13 @@
 
 * Create directory: `mkdir -p ~/.config/systemd/user`
 * Create a new systemd service: `cp sbb-flip-clock.service ~/.config/systemd/user`
-* Reload the service file: `sudo systemctl daemon-reload`
-* `sudo systemctl enable sbb-flip-clock`
-* `sudo systemctl disable sbb-flip-clock`
-* `sudo systemctl start sbb-flip-clock`
-* `sudo systemctl restart sbb-flip-clock`
-* `sudo systemctl stop sbb-flip-clock`
-* `sudo systemctl status sbb-flip-clock`
-* `journalctl -u sbb-flip-clock`
+* Reload the service file: `systemctl --user daemon-reload`
+* `systemctl --user enable sbb-flip-clock`
+* `systemctl --user disable sbb-flip-clock`
+* `systemctl --user start sbb-flip-clock`
+* `systemctl --user restart sbb-flip-clock`
+* `systemctl --user stop sbb-flip-clock`
+* `systemctl --user status sbb-flip-clock`
 
 ## Setup on Mac
 
