@@ -1,12 +1,20 @@
 [Unit]
 Description=SBB Flip Clock
+After=sound.target
 
 [Service]
+Type=simple
+User=sbb
+Group=sbb
+SupplementaryGroups=audio
 ExecStart=/home/sbb/.local/bin/uv run python /home/sbb/Desktop/sbb-flip-clock/main.py
 WorkingDirectory=/home/sbb/Desktop/sbb-flip-clock
 Restart=always
 RestartSec=5
 StartLimitBurst=0
 
+# Audio device access
+Environment="XDG_RUNTIME_DIR=/run/user/1000"
+
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target

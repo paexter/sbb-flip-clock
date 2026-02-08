@@ -30,15 +30,20 @@
 
 ### Run the application at startup
 
-* Create directory: `mkdir -p ~/.config/systemd/user`
-* Create a new systemd service: `cp sbb-flip-clock.service ~/.config/systemd/user`
-* Reload the service file: `systemctl --user daemon-reload`
-* `systemctl --user enable sbb-flip-clock`
-* `systemctl --user disable sbb-flip-clock`
-* `systemctl --user start sbb-flip-clock`
-* `systemctl --user restart sbb-flip-clock`
-* `systemctl --user stop sbb-flip-clock`
-* `systemctl --user status sbb-flip-clock`
+**Installation steps:**
+
+* Copy service to system location: `sudo cp sbb-flip-clock.service /etc/systemd/system/`
+* Reload systemd daemon: `sudo systemctl daemon-reload`
+* Enable service to start at boot: `sudo systemctl enable sbb-flip-clock.service`
+* Start service now: `sudo systemctl start sbb-flip-clock.service`
+* Check service status: `sudo systemctl status sbb-flip-clock.service`
+
+**Useful commands:**
+
+* Stop service: `sudo systemctl stop sbb-flip-clock`
+* Restart service: `sudo systemctl restart sbb-flip-clock`
+* Disable auto-start: `sudo systemctl disable sbb-flip-clock`
+* View live logs: `sudo journalctl -u sbb-flip-clock -f`
 
 ## Setup on Mac
 
