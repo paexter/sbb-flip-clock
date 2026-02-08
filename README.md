@@ -23,6 +23,11 @@
 * To enable clock shutdown use `visudo` a set `<your_username> ALL=(ALL) NOPASSWD: /sbin/shutdown`. Replace `<your_username>` with your actual username.
 * Run script with system Python without activating the environment `uv run python main.py`  or `uv run python test_raspberry.py`
 
+### Setup microphone
+
+* `sudo apt install pavucontrol`
+* Boost microphone to 153%: `pavucontrol` > `Input Devices` -> `PCM2902 Audio Codec Analog Mono`
+
 ### Run the application at startup
 
 * Create directory: `mkdir -p ~/.config/systemd/user`
