@@ -8,8 +8,8 @@ ExecStart=/home/sbb/.local/bin/uv run python /home/sbb/Desktop/sbb-flip-clock/ma
 WorkingDirectory=/home/sbb/Desktop/sbb-flip-clock
 Restart=always
 RestartSec=5
-User=sbb
-Group=audio
+# User=sbb
+# Group=audio
 
 [Install]
 WantedBy=default.target
