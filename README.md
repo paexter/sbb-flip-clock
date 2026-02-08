@@ -22,8 +22,11 @@
 * Run script with system Python without activating the environment `uv run python main.py`  or `uv run python test_raspberry.py`
 
 ### Run the application at startup
-<!-- crontab -e -->
-<!-- @reboot uv run /<path-to-script>/sbb-flip-clock/main.py -->
+
+* Create a new systemd service: `sudo cp sbb-flip-clock.service /etc/systemd/system/sbb-flip-clock.service`
+* `sudo systemctl daemon-reload`
+* `sudo systemctl enable sbb-flip-clock`
+* `sudo systemctl start sbb-flip-clock`
 
 ## Setup on Mac
 

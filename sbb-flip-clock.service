@@ -1,0 +1,12 @@
+[Unit]
+Description=SBB Flip Clock
+After=network.target
+
+[Service]
+ExecStart=uv run python /home/sbb/Desktop/sbb-flip-clock/main.py
+Restart=always
+RestartSec=5
+User=sbb
+
+[Install]
+WantedBy=multi-user.target
