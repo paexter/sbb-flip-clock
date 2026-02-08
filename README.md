@@ -25,9 +25,11 @@
 
 ### Run the application at startup
 
-* Create a new systemd service: `sudo cp sbb-flip-clock.service /etc/systemd/system/sbb-flip-clock.service`
-* `sudo systemctl daemon-reload`
+* Create directory: `mkdir -p ~/.config/systemd/user`
+* Create a new systemd service: `cp sbb-flip-clock.service ~/.config/systemd/user`
+* Reload the service file: `sudo systemctl daemon-reload`
 * `sudo systemctl enable sbb-flip-clock`
+* `sudo systemctl disable sbb-flip-clock`
 * `sudo systemctl start sbb-flip-clock`
 * `sudo systemctl restart sbb-flip-clock`
 * `sudo systemctl stop sbb-flip-clock`
