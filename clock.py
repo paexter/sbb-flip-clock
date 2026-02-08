@@ -62,6 +62,7 @@ class Clock:
         print("[Wake Word Button Released Handler] Resetting demo clock!")
         self._demo_minutes = 0
         self._demo_hours = 0
+        self._wake_word_trigger_time = None
 
     def _shutdown_button_pressed_handler(self) -> None:
         self._panel_clock.set_hour(0)
