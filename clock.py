@@ -33,6 +33,12 @@ class Clock:
         )
         self._panel_clock.connect()
 
+        self._panel_clock.set_hour(6)
+        self._panel_clock.set_minute(30)
+
+        self._panel_clock.set_hour(0)
+        self._panel_clock.set_minute(0)
+
         if self._wake_word_button.is_pressed:
             print("[Init] Mode: Wake word")
             self._panel_clock.set_hour(12)
