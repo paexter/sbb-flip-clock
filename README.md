@@ -3,6 +3,7 @@
 ## Setup on Raspberry Pi Zero W
 
 * Install and update Raspberry PI OS (64-bit)
+  * Use user `sbb`
   * Use `raspberrypi-clock.local`
 * Install portaudio: `sudo apt-get install portaudio19-dev`
 * Install pyaudio:`sudo apt-get install python3-pyaudio`
@@ -11,6 +12,7 @@
   * `sudo raspi-config`
   * Select `Interface Options` -> `Serial Port`, disable shell access, and enable the hardware serial port, restart
   * `ls -l /dev/serial*` -> A serial device `/dev/ttyS0` should be listed
+* Change directory: `cd /home/sbb/Desktop`
 * Clone: `git clone https://github.com/paexter/sbb-flip-clock.git`
 * Install uv: `curl -LsSf https://astral.sh/uv/install.sh | sh`
 * Check that `python --version` returns `3.11.2`.
@@ -27,6 +29,9 @@
 * `sudo systemctl daemon-reload`
 * `sudo systemctl enable sbb-flip-clock`
 * `sudo systemctl start sbb-flip-clock`
+* `sudo systemctl restart sbb-flip-clock`
+* `sudo systemctl status sbb-flip-clock`
+* `journalctl -u sbb-flip-clock`
 
 ## Setup on Mac
 
