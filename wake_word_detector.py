@@ -1,4 +1,5 @@
 import queue
+import threading
 from dataclasses import dataclass
 
 import miniaudio
@@ -89,6 +90,7 @@ class WakeWordDetector:
         self._model_count: int = len(self._model.models.keys())
 
         self._wake_word_callback: bool = None
+        self._stop_event = threading.Event()
 
     def _print_audio_devices(self) -> None:
         """Print all available input audio devices."""
@@ -116,6 +118,12 @@ class WakeWordDetector:
     def register_wake_word_callback(self, callback):
         """Register a callback to be called when a wake word is detected."""
         self._wake_word_callback = callback
+
+    def stop(self) -> None:
+        """Stop the wake word detector and clean up resources."""
+        print("Stopping wake word detector...")
+        self._stop_event.set()
+        self._capture_device.close()
 
     def _apply_audio_gain(self, audio: np.ndarray) -> np.ndarray:
         """
@@ -160,9 +168,13 @@ class WakeWordDetector:
         next(callback)
         self._capture_device.start(callback)
 
-        while True:
-            # Get audio at native sample rate
-            raw_data = self._audio_queue.get()
+        while not self._stop_event.is_set():
+            # Get audio at native sample rate with timeout
+            try:
+                raw_data = self._audio_queue.get(timeout=0.5)
+            except queue.Empty:
+                continue
+
             audio = np.frombuffer(raw_data, dtype=np.int16)
 
             # Apply software gain if configured
@@ -187,3 +199,5 @@ class WakeWordDetector:
                 print("-" * 100)
                 if self._wake_word_callback:
                     self._wake_word_callback()
+
+        print("Wake word detector stopped")

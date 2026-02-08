@@ -1,8 +1,9 @@
 import os
+import signal
+import sys
 import threading
 import time
 from datetime import datetime, timedelta
-from signal import pause
 
 import rich.traceback
 from gpiozero import Button
@@ -61,6 +62,9 @@ class Clock:
 
         self._demo_minutes: int = 0
         self._demo_hours: int = 0
+
+        self._shutdown_event = threading.Event()
+        self._wake_word_detector: WakeWordDetector | None = None
 
     def _wake_word_button_pressed_handler(self) -> None:
         print("[Wake Word Button Pressed Handler] Wake word mode is turned on!")
@@ -131,60 +135,110 @@ class Clock:
         config.audio_gain = 10.0
         config.detection_threshold = 0.05
 
-        wake_word_detector = WakeWordDetector(config=config)
-        wake_word_detector.register_wake_word_callback(wake_word_handler)
-        wake_word_detector.listen_for_wake_word()
-
-        pause()
+        self._wake_word_detector = WakeWordDetector(config=config)
+        self._wake_word_detector.register_wake_word_callback(wake_word_handler)
+        self._wake_word_detector.listen_for_wake_word()
+        print("[Wake Word Task] Exiting!")
 
     def _clock_task(self) -> None:
         print("[Clock Task] Starting!")
 
-        try:
-            while True:
-                if self._shutdown_button.is_pressed:
+        while not self._shutdown_event.is_set():
+            if self._shutdown_button.is_pressed:
+                time.sleep(1)
+                continue
+
+            if self._wake_word_button.is_pressed:
+                if self._wake_word_trigger_time is None:
                     time.sleep(1)
                     continue
-
-                if self._wake_word_button.is_pressed:
-                    if self._wake_word_trigger_time is None:
-                        time.sleep(1)
-                        continue
-                    else:
-                        elapsed: timedelta = (
-                            datetime.now() - self._wake_word_trigger_time
-                        )
-                        if elapsed.total_seconds() > 60 * self._wake_word_timeout:
-                            self._wake_word_trigger_time = None
-                            self._panel_clock.set_hour(12)
-                            self._panel_clock.set_minute(34)
-                            continue
                 else:
-                    self._wake_word_trigger_time = None
-
-                if self._enable_demo_mode:
-                    self._demo_minutes += 1
-                    self._demo_minutes %= 60
-                    self._demo_hours += 1
-                    self._demo_hours %= 24
-                    print(
-                        f"[Clock Task] Setting time to {self._demo_hours:02d}:"
-                        f"{self._demo_minutes:02d}"
+                    elapsed: timedelta = (
+                        datetime.now() - self._wake_word_trigger_time
                     )
-                    self._panel_clock.set_hour(self._demo_hours)
-                    self._panel_clock.set_minute(self._demo_minutes)
-                    time.sleep(3)
-                else:
-                    self._panel_clock.set_time_now()
-                    ts: datetime = datetime.now()
-                    sleeptime: float = 60 - (ts.second + ts.microsecond / 1000000.0)
-                    time.sleep(sleeptime)
+                    if elapsed.total_seconds() > 60 * self._wake_word_timeout:
+                        self._wake_word_trigger_time = None
+                        self._panel_clock.set_hour(12)
+                        self._panel_clock.set_minute(34)
+                        continue
+            else:
+                self._wake_word_trigger_time = None
 
-        except KeyboardInterrupt:
-            print("[Clock Task] Exiting!")
+            if self._enable_demo_mode:
+                self._demo_minutes += 1
+                self._demo_minutes %= 60
+                self._demo_hours += 1
+                self._demo_hours %= 24
+                print(
+                    f"[Clock Task] Setting time to {self._demo_hours:02d}:"
+                    f"{self._demo_minutes:02d}"
+                )
+                self._panel_clock.set_hour(self._demo_hours)
+                self._panel_clock.set_minute(self._demo_minutes)
+                time.sleep(3)
+            else:
+                self._panel_clock.set_time_now()
+                ts: datetime = datetime.now()
+                sleeptime: float = 60 - (ts.second + ts.microsecond / 1000000.0)
+                # Use wait() instead of sleep() so we can be interrupted
+                self._shutdown_event.wait(sleeptime)
+
+        print("[Clock Task] Exiting!")
+
+    def _cleanup(self) -> None:
+        """Clean up resources on shutdown."""
+        print("[Clock] Shutting down...")
+
+        # Signal threads to stop
+        self._shutdown_event.set()
+
+        # Stop wake word detector
+        if self._wake_word_detector:
+            self._wake_word_detector.stop()
+
+        # Close panel clock connection
+        try:
+            self._panel_clock.disconnect()
+        except Exception as e:
+            print(f"[Clock] Error disconnecting panel clock: {e}")
+
+        print("[Clock] Shutdown complete")
+
+    def _signal_handler(self, signum, _frame) -> None:
+        """Handle shutdown signals (SIGINT, SIGTERM)."""
+        print(f"\n[Clock] Received signal {signum}")
+        self._cleanup()
+        sys.exit(0)
 
     def run(self) -> None:
-        threading.Thread(target=self._clock_task, daemon=True).start()
-        threading.Thread(target=self._wake_word_task, daemon=True).start()
+        # Register signal handlers for graceful shutdown
+        signal.signal(signal.SIGINT, self._signal_handler)
+        signal.signal(signal.SIGTERM, self._signal_handler)
 
-        pause()
+        # Start threads (non-daemon so they can finish gracefully)
+        clock_thread = threading.Thread(
+            target=self._clock_task, daemon=False, name="ClockTask"
+        )
+        wake_word_thread = threading.Thread(
+            target=self._wake_word_task, daemon=False, name="WakeWordTask"
+        )
+
+        clock_thread.start()
+        wake_word_thread.start()
+
+        print("[Clock] All threads started. Press Ctrl+C to exit.")
+
+        try:
+            # Keep main thread alive and responsive to signals
+            while clock_thread.is_alive() or wake_word_thread.is_alive():
+                clock_thread.join(timeout=1.0)
+                wake_word_thread.join(timeout=1.0)
+        except KeyboardInterrupt:
+            print("\n[Clock] KeyboardInterrupt received")
+            self._cleanup()
+
+        # Wait for threads to finish
+        clock_thread.join(timeout=5.0)
+        wake_word_thread.join(timeout=5.0)
+
+        print("[Clock] Exited")
