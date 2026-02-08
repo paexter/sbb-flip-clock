@@ -34,12 +34,15 @@ class Clock:
         self._panel_clock.connect()
 
         if self._wake_word_button.is_pressed:
+            print("[Init] Mode: Wake word")
             self._panel_clock.set_hour(12)
             self._panel_clock.set_minute(34)
         elif self._shutdown_button.is_pressed:
+            print("[Init] Mode: Shutdown")
             self._panel_clock.set_hour(0)
             self._panel_clock.set_minute(60 - self._shutdown_timeout)
         else:
+            print("[Init] Mode: On")
             self._panel_clock.set_hour(0)
             self._panel_clock.set_minute(0)
 
