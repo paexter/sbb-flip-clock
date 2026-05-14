@@ -194,6 +194,10 @@ class Clock:
         if self._wake_word_detector:
             self._wake_word_detector.stop()
 
+        # Release GPIO pins so they are not busy on next startup
+        self._wake_word_button.close()
+        self._shutdown_button.close()
+
         print("[Clock] Shutdown complete")
 
     def _signal_handler(self, signum, _frame) -> None:
