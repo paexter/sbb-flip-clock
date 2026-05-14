@@ -11,6 +11,8 @@ if __name__ == "__main__":
     config.input_device_name = "PCM2902 Audio Codec Analog Mono"
     # config.input_device_name = "USB PnP Sound Device: Audio"
     # config.input_device_name = "HD Pro Webcam C920: USB Audio"
+    config.audio_gain = 10.0
+    config.detection_threshold = 0.05
 
     wake_word_detector = WakeWordDetector(config=config)
 
