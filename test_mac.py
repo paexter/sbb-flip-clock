@@ -19,4 +19,5 @@ if __name__ == "__main__":
 
     wake_word_detector.register_wake_word_callback(wake_word_handler)
 
-    wake_word_detector.listen_for_wake_word()
+    # wake_word_detector.listen_for_wake_word()
+    wake_word_detector.listen_for_wake_word_in_file("sample.wav")

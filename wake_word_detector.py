@@ -204,3 +204,57 @@ class WakeWordDetector:
                     self._wake_word_callback()
 
         print("Wake word detector stopped")
+
+    def listen_for_wake_word_in_file(self, file_path: str) -> None:
+        import wave
+
+        print("#" * 100)
+        print(f"Processing wake word detection from file: {file_path}")
+        print("#" * 100)
+
+        with wave.open(file_path, "rb") as wf:
+            n_channels = wf.getnchannels()
+            orig_sample_rate = wf.getframerate()
+            n_frames = wf.getnframes()
+            raw_data = wf.readframes(n_frames)
+
+        # Convert to mono 16kHz int16 using miniaudio
+        converted = miniaudio.convert_frames(
+            from_fmt=miniaudio.SampleFormat.SIGNED16,
+            from_numchannels=n_channels,
+            from_samplerate=orig_sample_rate,
+            sourcedata=raw_data,
+            to_fmt=miniaudio.SampleFormat.SIGNED16,
+            to_numchannels=1,
+            to_samplerate=16000,
+        )
+        audio = np.frombuffer(converted, dtype=np.int16)
+
+        # Apply software gain if configured
+        if self._config.audio_gain != 1.0:
+            audio = self._apply_audio_gain(audio)
+
+        chunk_size = 1280
+        wake_word_detected = False
+
+        for i in range(0, len(audio) - chunk_size + 1, chunk_size):
+            chunk = audio[i : i + chunk_size]
+            _ = self._model.predict(chunk)
+
+            for m in self._model.prediction_buffer.keys():
+                score: float = list(self._model.prediction_buffer[m])[-1]
+
+                if score > self._detection_threshold:
+                    wake_word_detected = True
+                    formatted_score: str = format(score, ".20f").replace("-", "")
+                    formatted_model: str = f"{m}{' ' * (16 - len(m))}"
+                    print(f"{formatted_model} | {formatted_score[0:5]}")
+                else:
+                    print("-")
+
+        if wake_word_detected:
+            print("-" * 100)
+            if self._wake_word_callback:
+                self._wake_word_callback()
+        else:
+            print("No wake word detected in file.")
