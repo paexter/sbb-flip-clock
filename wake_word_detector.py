@@ -268,7 +268,7 @@ class WakeWordDetector:
                     print(f"{formatted_model} | {formatted_score[0:5]}")
                 else:
                     wake_word_detected_in_previous_chunk = False
-                    print("-", end="")
+                    # print("-", end="")
 
         if not wake_word_detected:
             print("\nNo wake word detected in file.")
