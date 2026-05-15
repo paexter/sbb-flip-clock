@@ -15,7 +15,8 @@ class WakeWordDetector:
         audio_gain: float = 1.0
         detection_threshold: float = 0.3
         debounce: float = 2.0
-        inference_stride: int = 4
+        # With a smaller stride the CPU on the Raspberry Pi is too slow
+        inference_stride: int = 8
         debug: bool = False
 
     def __init__(self, config: Config | None = None) -> None:
