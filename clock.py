@@ -70,12 +70,16 @@ class Clock:
         print("[Wake Word Button Pressed Handler] Wake word mode is turned on!")
         self._panel_clock.set_hour(12)
         self._panel_clock.set_minute(34)
+        if self._wake_word_detector:
+            self._wake_word_detector.resume()
 
     def _wake_word_button_released_handler(self) -> None:
         print("[Wake Word Button Released Handler] Resetting demo clock!")
         self._demo_minutes = 0
         self._demo_hours = 0
         self._wake_word_trigger_time = None
+        if self._wake_word_detector:
+            self._wake_word_detector.pause()
 
     def _shutdown_button_pressed_handler(self) -> None:
         self._panel_clock.set_hour(0)
@@ -136,6 +140,8 @@ class Clock:
 
         self._wake_word_detector = WakeWordDetector(config=config)
         self._wake_word_detector.register_wake_word_callback(wake_word_handler)
+        if not self._wake_word_button.is_pressed:
+            self._wake_word_detector.pause()
         self._wake_word_detector.listen_for_wake_word()
         print("[Wake Word Task] Exiting!")
 

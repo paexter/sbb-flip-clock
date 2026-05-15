@@ -91,6 +91,8 @@ class WakeWordDetector:
         self._last_detection_time: float = 0.0
         self._chunk_counter: int = 0
         self._stop_event = threading.Event()
+        self._pause_event = threading.Event()
+        self._pause_event.set()  # running by default
 
     def _print_audio_devices(self) -> None:
         """Print all available input audio devices."""
@@ -119,10 +121,22 @@ class WakeWordDetector:
         """Register a callback to be called when a wake word is detected."""
         self._wake_word_callback = callback
 
+    def pause(self) -> None:
+        """Pause wake word detection (audio is still captured but not processed)."""
+        print("Wake word detector paused.")
+        self._pause_event.clear()
+
+    def resume(self) -> None:
+        """Resume wake word detection."""
+        print("Wake word detector resumed.")
+        self._audio_queue.queue.clear()
+        self._pause_event.set()
+
     def stop(self) -> None:
         """Stop the wake word detector and clean up resources."""
         print("Stopping wake word detector...")
         self._stop_event.set()
+        self._pause_event.set()  # unblock if paused so the loop can exit
         self._capture_device.close()
 
     def _apply_audio_gain(self, audio: np.ndarray) -> np.ndarray:
@@ -175,6 +189,11 @@ class WakeWordDetector:
             try:
                 raw_data = self._audio_queue.get(timeout=0.5)
             except queue.Empty:
+                continue
+
+            if not self._pause_event.is_set():
+                self._pause_event.wait()
+                self._audio_queue.queue.clear()
                 continue
 
             audio = np.frombuffer(raw_data, dtype=np.int16)
