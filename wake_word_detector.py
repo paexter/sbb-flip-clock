@@ -49,6 +49,7 @@ class WakeWordDetector:
             # "resources/models/custom/hey_livekit.onnx",
             # "resources/models/custom/hey_clock_v1.onnx",
             "resources/models/custom/hey_clock_small_v1.onnx",
+            # "resources/models/custom/hey_clock_tiny_v1.onnx",
         ]
 
         self._model_sample_rate: int = 16000  # Fixed by wake word model
