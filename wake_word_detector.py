@@ -15,6 +15,7 @@ class WakeWordDetector:
         audio_gain: float = 1.0
         detection_threshold: float = 0.3
         debounce: float = 2.0
+        inference_stride: int = 4
         debug: bool = False
 
     def __init__(self, config: Config | None = None) -> None:
@@ -34,6 +35,8 @@ class WakeWordDetector:
             or self._config.detection_threshold > 1
         ):
             raise ValueError("detection_threshold must be between 0 and 1")
+        if self._config.inference_stride < 1:
+            raise ValueError("inference_stride must be >= 1")
 
         self._detection_threshold: float = self._config.detection_threshold
 
@@ -85,6 +88,7 @@ class WakeWordDetector:
 
         self._wake_word_callback: bool = None
         self._last_detection_time: float = 0.0
+        self._chunk_counter: int = 0
         self._stop_event = threading.Event()
 
     def _print_audio_devices(self) -> None:
@@ -183,6 +187,10 @@ class WakeWordDetector:
             if len(self._audio_buffer) > self._audio_buffer_size:
                 self._audio_buffer = self._audio_buffer[-self._audio_buffer_size :]
 
+            self._chunk_counter += 1
+            if self._chunk_counter % self._config.inference_stride != 0:
+                continue
+
             scores = self._model.predict(self._audio_buffer)
 
             wake_word_detected = False
@@ -249,12 +257,17 @@ class WakeWordDetector:
         wake_word_detected = False
 
         file_buffer: np.ndarray = np.array([], dtype=np.int16)
+        file_chunk_counter = 0
 
         for i in range(0, len(audio) - chunk_size + 1, chunk_size):
             chunk = audio[i : i + chunk_size]
             file_buffer = np.concatenate([file_buffer, chunk])
             if len(file_buffer) > self._audio_buffer_size:
                 file_buffer = file_buffer[-self._audio_buffer_size :]
+
+            file_chunk_counter += 1
+            if file_chunk_counter % self._config.inference_stride != 0:
+                continue
 
             scores = self._model.predict(file_buffer)
 
