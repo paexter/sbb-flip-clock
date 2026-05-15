@@ -5,7 +5,7 @@ import wave
 import miniaudio
 
 DEVICE_NAME = "PCM2902 Audio Codec Analog Mono"
-DURATION = 5
+DURATION = 10
 SAMPLE_RATE = 16000
 CHANNELS = 1
 SAMPLE_FORMAT = miniaudio.SampleFormat.SIGNED16
@@ -16,7 +16,9 @@ BUFFERSIZE_MSEC = int(1000 * CHUNK_SIZE / SAMPLE_RATE)
 def find_device_id(name: str) -> object:
     devices = miniaudio.Devices()
     captures = devices.get_captures()
-    matches = [(d["id"], d["name"]) for d in captures if name.lower() in d["name"].lower()]
+    matches = [
+        (d["id"], d["name"]) for d in captures if name.lower() in d["name"].lower()
+    ]
     if not matches:
         raise ValueError(f"No audio device matching '{name}'")
     if len(matches) > 1:
@@ -32,6 +34,7 @@ def next_filename() -> str:
         try:
             open(name, "x").close()
             import os
+
             os.remove(name)
         except FileExistsError:
             i += 1
