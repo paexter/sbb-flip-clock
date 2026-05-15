@@ -43,7 +43,8 @@ class WakeWordDetector:
             # "resources/models/custom/tic_toc.onnx",
             # "resources/models/custom/tick_tock_v3.onnx",
             # "resources/models/custom/hey_livekit.onnx",
-            "resources/models/custom/hey_clock_v1.onnx",
+            # "resources/models/custom/hey_clock_v1.onnx",
+            "resources/models/custom/hey_clock_small_v1.onnx",
         ]
         self._melspec_model_path: str = "resources/models/melspectrogram.onnx"
         self._embedding_model_path: str = "resources/models/embedding_model.onnx"
