@@ -251,7 +251,8 @@ class WakeWordDetector:
                     formatted_model: str = f"{m}{' ' * (16 - len(m))}"
                     print(f"{formatted_model} | {formatted_score[0:5]}")
                 else:
-                    print("-")
+                    print("-", end="")
+                    # print("-")
 
         if wake_word_detected:
             print("-" * 100)

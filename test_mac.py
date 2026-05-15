@@ -9,7 +9,7 @@ if __name__ == "__main__":
     config = WakeWordDetector.Config()
     config.enable_speex_noise_suppression = False
     config.input_device_name = "MacBook Pro Microphone"
-    config.audio_gain = 10.0
+    config.audio_gain = 0.1
     config.detection_threshold = 0.05
 
     wake_word_detector = WakeWordDetector(config=config)
