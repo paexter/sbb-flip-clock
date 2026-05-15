@@ -10,7 +10,7 @@ if __name__ == "__main__":
     config.enable_speex_noise_suppression = False
     config.input_device_name = "MacBook Pro Microphone"
     config.audio_gain = 0.01  # This makes no sense, but it works the best by far
-    config.detection_threshold = 0.1
+    config.detection_threshold = 0.3
 
     wake_word_detector = WakeWordDetector(config=config)
 

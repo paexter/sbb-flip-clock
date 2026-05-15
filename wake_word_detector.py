@@ -14,8 +14,8 @@ class WakeWordDetector:
         enable_speex_noise_suppression: bool = (
             False  # Linux only, requires pyaudio with speex support
         )
-        audio_gain: float = 1.0
-        detection_threshold: float = 0.1
+        audio_gain: float = 0.01
+        detection_threshold: float = 0.3
 
     def __init__(self, config: Config | None = None) -> None:
         self._config = config or WakeWordDetector.Config()
