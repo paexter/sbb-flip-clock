@@ -1,5 +1,6 @@
 import queue
 import threading
+import time
 from dataclasses import dataclass
 
 import miniaudio
@@ -13,6 +14,7 @@ class WakeWordDetector:
         input_device_name: str | None = None
         audio_gain: float = 1.0
         detection_threshold: float = 0.3
+        debounce: float = 2.0
         debug: bool = False
 
     def __init__(self, config: Config | None = None) -> None:
@@ -82,6 +84,7 @@ class WakeWordDetector:
         self._audio_buffer_size: int = 2 * self._model_sample_rate  # 2s sliding window
 
         self._wake_word_callback: bool = None
+        self._last_detection_time: float = 0.0
         self._stop_event = threading.Event()
 
     def _print_audio_devices(self) -> None:
@@ -203,8 +206,12 @@ class WakeWordDetector:
                         print("-", end="")
 
             if wake_word_detected:
-                if self._wake_word_callback:
-                    self._wake_word_callback()
+                now = time.monotonic()
+                if now - self._last_detection_time >= self._config.debounce:
+                    self._last_detection_time = now
+                    self._audio_buffer = np.array([], dtype=np.int16)
+                    if self._wake_word_callback:
+                        self._wake_word_callback()
 
         print("Wake word detector stopped")
 
