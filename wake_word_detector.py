@@ -203,7 +203,7 @@ class WakeWordDetector:
                     wake_word_detected_in_previous_chunk = False
 
                     if self._config.debug:
-                        print("-", end="")
+                        print("-", end="", flush=True)
 
             if wake_word_detected:
                 now = time.monotonic()
@@ -273,7 +273,7 @@ class WakeWordDetector:
                 else:
                     wake_word_detected_in_previous_chunk = False
 
-                    print("-", end="")
+                    print("-", end="", flush=True)
 
         if not wake_word_detected:
             print("\nNo wake word detected in file.")
