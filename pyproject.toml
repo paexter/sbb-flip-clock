@@ -9,10 +9,9 @@ dependencies = [
     "gpiozero==1.5.1",
     "miniaudio>=1.59",
     "numpy==2.2.6",
-    # "tflite-runtime==2.14.0",
-    "openwakeword==0.6.0",                         # Requires the "resources" directory from the 0.5.1 version or manually specified model path
     "rich==14.0.0",
     "speexdsp_ns==0.1.2; sys_platform == 'linux'",
+    "livekit-wakeword[listener]>=0.2.0",
 ]
 [tool.ruff]
 exclude = ["sbb_fallblatt"]

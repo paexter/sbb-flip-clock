@@ -10,6 +10,5 @@
   * [ ] Figure out clock module id
   * [ ] Install OS
   * [ ] Double check instructions
-* [ ] Add label to the back for "wake word" "on" "shutdown"
-* [ ] Buy blue marker for the front
 * [ ] Disable demo mode
+* [ ] Remove unused resources

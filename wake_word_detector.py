@@ -4,17 +4,14 @@ from dataclasses import dataclass
 
 import miniaudio
 import numpy as np
-from openwakeword.model import Model
+from livekit.wakeword import WakeWordModel
 
 
 class WakeWordDetector:
     @dataclass
     class Config:
         input_device_name: str | None = None
-        enable_speex_noise_suppression: bool = (
-            False  # Linux only, requires pyaudio with speex support
-        )
-        audio_gain: float = 0.01
+        audio_gain: float = 1.0
         detection_threshold: float = 0.3
         debug: bool = False
 
@@ -47,11 +44,6 @@ class WakeWordDetector:
             # "resources/models/custom/hey_clock_v1.onnx",
             "resources/models/custom/hey_clock_small_v1.onnx",
         ]
-        self._melspec_model_path: str = "resources/models/melspectrogram.onnx"
-        self._embedding_model_path: str = "resources/models/embedding_model.onnx"
-
-        # self._inference_framework = "tflite"
-        self._inference_framework = "onnx"
 
         self._model_sample_rate: int = 16000  # Fixed by wake word model
         self._sample_format = miniaudio.SampleFormat.SIGNED16
@@ -83,16 +75,11 @@ class WakeWordDetector:
             device_id=device_id,
         )
 
-        self._model = Model(
-            wakeword_models=self._wake_word_model_paths,
-            melspec_model_path=self._melspec_model_path,
-            embedding_model_path=self._embedding_model_path,
-            inference_framework=self._inference_framework,
-            enable_speex_noise_suppression=self._config.enable_speex_noise_suppression,
-            # vad_threshold = 0.3,
-        )
+        self._model = WakeWordModel(models=self._wake_word_model_paths)
 
-        self._model_count: int = len(self._model.models.keys())
+        self._model_count: int = len(self._wake_word_model_paths)
+        self._audio_buffer: np.ndarray = np.array([], dtype=np.int16)
+        self._audio_buffer_size: int = 2 * self._model_sample_rate  # 2s sliding window
 
         self._wake_word_callback: bool = None
         self._stop_event = threading.Event()
@@ -188,12 +175,15 @@ class WakeWordDetector:
             if self._config.audio_gain != 1.0:
                 audio = self._apply_audio_gain(audio)
 
-            # Feed to model
-            _ = self._model.predict(audio)
+            # Append to rolling buffer and trim to 2s
+            self._audio_buffer = np.concatenate([self._audio_buffer, audio])
+            if len(self._audio_buffer) > self._audio_buffer_size:
+                self._audio_buffer = self._audio_buffer[-self._audio_buffer_size :]
+
+            scores = self._model.predict(self._audio_buffer)
 
             wake_word_detected = False
-            for m in self._model.prediction_buffer.keys():
-                score: float = list(self._model.prediction_buffer[m])[-1]
+            for m, score in scores.items():
 
                 if score > self._detection_threshold:
                     # Add a newline if we didn't detect a wake word in the chunk before
@@ -251,12 +241,17 @@ class WakeWordDetector:
         wake_word_detected_in_previous_chunk = False
         wake_word_detected = False
 
+        file_buffer: np.ndarray = np.array([], dtype=np.int16)
+
         for i in range(0, len(audio) - chunk_size + 1, chunk_size):
             chunk = audio[i : i + chunk_size]
-            _ = self._model.predict(chunk)
+            file_buffer = np.concatenate([file_buffer, chunk])
+            if len(file_buffer) > self._audio_buffer_size:
+                file_buffer = file_buffer[-self._audio_buffer_size :]
 
-            for m in self._model.prediction_buffer.keys():
-                score: float = list(self._model.prediction_buffer[m])[-1]
+            scores = self._model.predict(file_buffer)
+
+            for m, score in scores.items():
 
                 if score > self._detection_threshold:
                     # Add a newline if we didn't detect a wake word in the chunk before

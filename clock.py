@@ -130,9 +130,8 @@ class Clock:
             self._wake_word_trigger_time = datetime.now()
 
         config = WakeWordDetector.Config()
-        config.enable_speex_noise_suppression = False
         config.input_device_name = "PCM2902 Audio Codec Analog Mono"
-        config.audio_gain = 0.01
+        config.audio_gain = 1.0
         config.detection_threshold = 0.3
 
         self._wake_word_detector = WakeWordDetector(config=config)
