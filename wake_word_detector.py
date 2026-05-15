@@ -198,6 +198,8 @@ class WakeWordDetector:
                     formatted_model: str = f"{m}{' ' * (16 - len(m))}"
 
                     print(f"{formatted_model} | {formatted_score[0:5]}")
+                else:
+                    print("-", end="")
 
             if wake_word_detected:
                 print("-" * 100)
@@ -236,6 +238,7 @@ class WakeWordDetector:
             audio = self._apply_audio_gain(audio)
 
         chunk_size = 1280
+        wake_word_detected_in_previous_chunk = False
         wake_word_detected = False
 
         for i in range(0, len(audio) - chunk_size + 1, chunk_size):
@@ -246,17 +249,18 @@ class WakeWordDetector:
                 score: float = list(self._model.prediction_buffer[m])[-1]
 
                 if score > self._detection_threshold:
+                    # Add a newline if we didn't detect a wake word in the chunk before
+                    if not wake_word_detected_in_previous_chunk:
+                        print("")
+
+                    wake_word_detected_in_previous_chunk = True
                     wake_word_detected = True
                     formatted_score: str = format(score, ".20f").replace("-", "")
                     formatted_model: str = f"{m}{' ' * (16 - len(m))}"
                     print(f"{formatted_model} | {formatted_score[0:5]}")
                 else:
+                    wake_word_detected_in_previous_chunk = False
                     print("-", end="")
-                    # print("-")
 
-        if wake_word_detected:
-            print("-" * 100)
-            if self._wake_word_callback:
-                self._wake_word_callback()
-        else:
-            print("No wake word detected in file.")
+        if not wake_word_detected:
+            print("\nNo wake word detected in file.")
