@@ -175,7 +175,9 @@ class WakeWordDetector:
 
     def listen_for_wake_word(self) -> None:
         print("#" * 100)
-        print("Listening for wake words...")
+        print(
+            f"Listening for wake words...{'(Paused)' if not self._pause_event.is_set else ''}"
+        )
         print("#" * 100)
 
         callback = self._audio_callback_generator()
