@@ -16,6 +16,7 @@ class WakeWordDetector:
         )
         audio_gain: float = 0.01
         detection_threshold: float = 0.3
+        debug: bool = False
 
     def __init__(self, config: Config | None = None) -> None:
         self._config = config or WakeWordDetector.Config()
@@ -207,10 +208,11 @@ class WakeWordDetector:
                     print(f"{formatted_model} | {formatted_score[0:5]}")
                 else:
                     wake_word_detected_in_previous_chunk = False
-                    print("-", end="")
+
+                    if self._config.debug:
+                        print("-", end="")
 
             if wake_word_detected:
-                # print("-" * 100)
                 if self._wake_word_callback:
                     self._wake_word_callback()
 
@@ -268,7 +270,8 @@ class WakeWordDetector:
                     print(f"{formatted_model} | {formatted_score[0:5]}")
                 else:
                     wake_word_detected_in_previous_chunk = False
-                    # print("-", end="")
+
+                    print("-", end="")
 
         if not wake_word_detected:
             print("\nNo wake word detected in file.")
