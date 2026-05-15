@@ -65,6 +65,7 @@ class Clock:
 
         self._shutdown_event = threading.Event()
         self._wake_word_event = threading.Event()
+        self._wakeup_event = threading.Event()
         self._wake_word_detector: WakeWordDetector | None = None
 
     def _wake_word_button_pressed_handler(self) -> None:
@@ -82,6 +83,7 @@ class Clock:
         self._wake_word_event.clear()
         if self._wake_word_detector:
             self._wake_word_detector.pause()
+        self._wakeup_event.set()
 
     def _shutdown_button_pressed_handler(self) -> None:
         self._panel_clock.set_hour(0)
@@ -119,6 +121,7 @@ class Clock:
         print("[Shutdown Button Released Handler] Resetting demo clock!")
         self._demo_minutes = 0
         self._demo_hours = 0
+        self._wakeup_event.set()
 
     def _wake_word_task(self) -> None:
         print("[Wake Word Task] Starting!")
@@ -194,6 +197,9 @@ class Clock:
                         break
                     if self._wake_word_event.is_set():
                         self._wake_word_event.clear()
+                        break
+                    if self._wakeup_event.is_set():
+                        self._wakeup_event.clear()
                         break
 
         print("[Clock Task] Exiting!")
