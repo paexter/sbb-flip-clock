@@ -64,6 +64,7 @@ class Clock:
         self._demo_hours: int = 0
 
         self._shutdown_event = threading.Event()
+        self._wake_word_event = threading.Event()
         self._wake_word_detector: WakeWordDetector | None = None
 
     def _wake_word_button_pressed_handler(self) -> None:
@@ -78,6 +79,7 @@ class Clock:
         self._demo_minutes = 0
         self._demo_hours = 0
         self._wake_word_trigger_time = None
+        self._wake_word_event.clear()
         if self._wake_word_detector:
             self._wake_word_detector.pause()
 
@@ -132,6 +134,7 @@ class Clock:
 
             print("[Wake Word Handler] Wake word callback triggered!")
             self._wake_word_trigger_time = datetime.now()
+            self._wake_word_event.set()
 
         config = WakeWordDetector.Config()
         config.input_device_name = "PCM2902 Audio Codec Analog Mono"
@@ -183,8 +186,15 @@ class Clock:
                 self._panel_clock.set_time_now()
                 ts: datetime = datetime.now()
                 sleeptime: float = 60 - (ts.second + ts.microsecond / 1000000.0)
-                # Use wait() instead of sleep() so we can be interrupted
-                self._shutdown_event.wait(sleeptime)
+                # Wait until next minute, but wake early on shutdown or wake word trigger
+                end = time.monotonic() + sleeptime
+                while time.monotonic() < end:
+                    remaining = end - time.monotonic()
+                    if self._shutdown_event.wait(min(remaining, 0.2)):
+                        break
+                    if self._wake_word_event.is_set():
+                        self._wake_word_event.clear()
+                        break
 
         print("[Clock Task] Exiting!")
 
