@@ -172,6 +172,8 @@ class WakeWordDetector:
         next(callback)
         self._capture_device.start(callback)
 
+        wake_word_detected_in_previous_chunk = False
+
         while not self._stop_event.is_set():
             # Get audio at native sample rate with timeout
             try:
@@ -193,16 +195,22 @@ class WakeWordDetector:
                 score: float = list(self._model.prediction_buffer[m])[-1]
 
                 if score > self._detection_threshold:
+                    # Add a newline if we didn't detect a wake word in the chunk before
+                    if not wake_word_detected_in_previous_chunk:
+                        print("")
+
+                    wake_word_detected_in_previous_chunk = True
                     wake_word_detected = True
                     formatted_score: str = format(score, ".20f").replace("-", "")
                     formatted_model: str = f"{m}{' ' * (16 - len(m))}"
 
                     print(f"{formatted_model} | {formatted_score[0:5]}")
                 else:
+                    wake_word_detected_in_previous_chunk = False
                     print("-", end="")
 
             if wake_word_detected:
-                print("-" * 100)
+                # print("-" * 100)
                 if self._wake_word_callback:
                     self._wake_word_callback()
 
