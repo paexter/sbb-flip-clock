@@ -65,9 +65,10 @@ def main():
     callback = audio_callback_generator(audio_queue)
     next(callback)
 
-    chunks = []
     print(f"Recording for {DURATION}s...")
     capture.start(callback)
+    first_chunk = audio_queue.get(timeout=5.0)
+    chunks = [first_chunk]
     deadline = time.monotonic() + DURATION
     while time.monotonic() < deadline:
         try:
