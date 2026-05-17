@@ -1,26 +1,29 @@
 # sbb-flip-clock
 
-## Setup on Raspberry Pi Zero W
+## Setup on Raspberry Pi Zero 2 W
 
 * Install and update Raspberry PI OS (64-bit)
+  * Use hostname: `raspberrypi-clock`
   * Use user `sbb`
-  * Use `raspberrypi-clock.local`
+* Optional: Install fish `sudo apt-get install fish`
 * Install portaudio: `sudo apt-get install portaudio19-dev`
 * Install pyaudio:`sudo apt-get install python3-pyaudio`
 * Install Waveshare RS485 CAN HAT: www.waveshare.com/wiki/RS485_CAN_HAT
   * `ls -l /dev/serial*` -> No serial device should be listed
   * `sudo raspi-config`
-  * Select `Interface Options` -> `Serial Port`, disable shell access, and enable the hardware serial port, restart
+  * Select `Interface Options` -> `Serial Port`, disable login shell access, and enable the hardware serial port, restart
   * `ls -l /dev/serial*` -> A serial device `/dev/ttyS0` should be listed
 * Change directory: `cd /home/sbb/Desktop`
 * Clone: `git clone https://github.com/paexter/sbb-flip-clock.git`
-* Install uv: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-* Check that `python --version` returns `3.11.2`.
+* Install uv: `curl -LsSf https://astral.sh/uv/install.sh | sh` and restart shell
+* Check that `python --version` returns or `3.13.5`.
+  * Note: the version specified in `.python-version` has to match the major and minor version
+  * Note: also the version specified in `pyproject.toml` has to be compatible
 * Create venv including system packages: `uv venv -p /usr/bin/python --system-site-packages`. The system version of `lgpio` is required for the buttons to work.
 * Activate environment: `source .venv/bin/activate` or `source .venv/bin/activate.fish`
-* Install dependencies: `uv sync`
+* Install dependencies: `uv sync` (this might take a while)
 * Verify that `lgpio` package is present even though not explicitly installed with `uv sync`: `uv run python -m pip list | grep lgpio`
-* To enable clock shutdown use `visudo` a set `<your_username> ALL=(ALL) NOPASSWD: /sbin/shutdown`. Replace `<your_username>` with your actual username.
+* To enable clock shutdown use `sudo visudo` and add `<your_username> ALL=(ALL) NOPASSWD: /sbin/shutdown`. Replace `<your_username>` with your actual username `sbb`.
 * Run script with system Python without activating the environment `uv run python main.py`  or `uv run python test_raspberry.py`
 
 ### Setup microphone
