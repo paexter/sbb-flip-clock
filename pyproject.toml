@@ -10,7 +10,6 @@ dependencies = [
     "miniaudio>=1.59",
     "numpy==2.2.6",
     "rich==14.0.0",
-    "speexdsp_ns==0.1.2; sys_platform == 'linux'",
     "livekit-wakeword[listener]>=0.2.0",
 ]
 [tool.ruff]
