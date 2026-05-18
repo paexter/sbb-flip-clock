@@ -15,7 +15,7 @@ Connect your clock with your Wifi to synchronize the time automatically with a t
 ## Turn on the Clock
 
 1) Plug in the clock to turn it on. After about one minute the clock should start updating.
-   * Note that booting up the clock fully takes about two minutes.
+   * Note that booting up the clock fully takes about two minutes. The wake word functionality might only work reliable then.
    * Note that setting the switch to *ON* does not turn on the clock.
    * If the switch is set to *ON* the clock will show the current time.
    * If the switch is set to *WAKE* the clock will show `12.34` and will listen to the wake word `hey clock`.
@@ -23,4 +23,4 @@ Connect your clock with your Wifi to synchronize the time automatically with a t
 
 ## Shutdown the Clock
 
-1) Set the switch to the `OFF` position. The clock will show `0.50` and then count down to `0.00`. When it reaches `0.00` it will start the shutdown process. Wait 30 seconds for the clock to shut down. During that time the green LED on the Raspberry Pi will blink. Once the green LED is off, it is safe to unplug the clock.
+1) Set the switch to the `OFF` position. The clock will show `0.50` and then count down to `0.00`. During the count down the shutdown process can be prevented by toggling the switch. When the count down reaches `0.00` it will start the shutdown process. Wait 30 seconds for the clock to completely shut down. During that time the green LED on the Raspberry Pi will blink. Once the green LED is off, it is safe to unplug the clock.
