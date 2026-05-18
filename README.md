@@ -14,7 +14,7 @@
   * Select `Interface Options` -> `Serial Port`, disable login shell access, and enable the hardware serial port, restart
   * `ls -l /dev/serial*` -> A serial device `/dev/ttyS0` should be listed
 * Change directory: `cd /home/sbb/Desktop`
-* Clone: `git clone https://github.com/paexter/sbb-flip-clock.git`
+* Clone `git clone https://github.com/paexter/sbb-flip-clock.git` and cd to `sbb-flip-clock`
 * Install uv: `curl -LsSf https://astral.sh/uv/install.sh | sh` and restart shell
 * Check that `python --version` returns or `3.13.5`.
   * Note: the version specified in `.python-version` has to match the major and minor version
