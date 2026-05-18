@@ -144,7 +144,15 @@ class Clock:
         config.audio_gain = 1.0
         config.detection_threshold = 0.3
 
-        self._wake_word_detector = WakeWordDetector(config=config)
+        retry_interval = 5
+        while True:
+            try:
+                self._wake_word_detector = WakeWordDetector(config=config)
+                break
+            except ValueError as e:
+                print(f"[Wake Word Task] Audio device not available, retrying in {retry_interval}s: {e}")
+                time.sleep(retry_interval)
+
         self._wake_word_detector.register_wake_word_callback(wake_word_handler)
         if not self._wake_word_button.is_pressed:
             self._wake_word_detector.pause()
