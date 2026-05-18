@@ -25,6 +25,7 @@
 * Verify that `lgpio` package is present even though not explicitly installed with `uv sync`: `uv run python -m pip list | grep lgpio`
 * To enable clock shutdown use `sudo visudo` and add `<your_username> ALL=(ALL) NOPASSWD: /sbin/shutdown`. Replace `<your_username>` with your actual username `sbb`.
 * Run script with system Python without activating the environment `uv run python main.py`  or `uv run python test_raspberry.py`
+* Rename `config.json.example` to `config.json` and customize your config as needed.
 
 ### Setup microphone
 
